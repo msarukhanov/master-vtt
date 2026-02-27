@@ -1,0 +1,188 @@
+.left-menu {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: 400px;
+    height: 100dvh;
+    background: var(--main-bg);
+    padding: calc(20px + var(--safe-area-top)) 20px;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+}
+.left-menu.open {
+    transform: translateX(0);
+}
+.left-menu .menu-icon {
+    display: inline-block;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+.left-menu-inner {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    padding-top: 6px;
+    overflow-y: scroll;
+}
+
+.left-menu-title {
+    margin: 0 0 12px;
+    padding: 6px 0 6px 6px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.left-menu-tab {
+    margin: 0 0 12px;
+    padding: 6px 0 6px 6px;
+    font-size: 20px;
+    border-left: 1px solid var(--main-color);
+    cursor: pointer;
+    /*background: var(--bg-2);*/
+}
+
+.gen-popup-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.gen-popup-actions button {
+    flex: 1;
+    height: 40px;
+    border-radius: 8px;
+    font-weight: bold;
+    border: 1px solid var(--active-color);
+    background: transparent;
+    color: var(--main-color);
+}
+
+.gen-popup-actions button.del { background: #8e1c1c; border-color: #ff4d4d; }
+.gen-popup-actions button.save { background: #d4af37; border-color: gold; color: #000; }
+
+
+
+
+
+.graph-popup-wrapper {
+    width: 90vw; /* Почти на весь экран APK */
+    min-width: 650px;
+    max-width: 650px;
+    padding: 15px;
+    background: #1a1a1a;
+    border-radius: 12px;
+    color: #eee;
+}
+
+.graph-svg-container {
+    width: 100%;
+    aspect-ratio: 6 / 4; /* Соотношение как у viewBox */
+}
+
+.editor-graph-container {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--color-2);
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+}
+
+.graph-title {
+    text-align: center;
+    margin-bottom: 10px;
+    color: var(--color-2);
+}
+
+.graph-wrapper {
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#relationGraph {
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+    background: #1a1a1a;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+/* Стили для элементов внутри SVG */
+.graph-node {
+    transition: filter 0.2s, transform 0.2s;
+}
+
+.graph-node:hover {
+    filter: brightness(1.2);
+}
+
+.graph-node text {
+    pointer-events: none; /* Текст не мешает клику по кругу/квадрату */
+    user-select: none;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Цвет линий по умолчанию, если не задан инлайново */
+#relationGraph line {
+    stroke-linecap: round;
+}
+.editor-graph-container {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--color-2);
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+}
+
+.graph-title {
+    text-align: center;
+    margin-bottom: 10px;
+    color: var(--color-2);
+}
+
+.graph-wrapper {
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#relationGraph {
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+    background: #1a1a1a;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+/* Стили для элементов внутри SVG */
+.graph-node {
+    transition: filter 0.2s, transform 0.2s;
+}
+
+.graph-node:hover {
+    filter: brightness(1.2);
+}
+
+.graph-node text {
+    pointer-events: none; /* Текст не мешает клику по кругу/квадрату */
+    user-select: none;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Цвет линий по умолчанию, если не задан инлайново */
+#relationGraph line {
+    stroke-linecap: round;
+}

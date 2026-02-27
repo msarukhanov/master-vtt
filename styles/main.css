@@ -1,0 +1,408 @@
+:root {
+    --main-bg: #0f1220;
+    --card-bg: #1a1f35;
+    --main-color: #eeeeee;
+    --active-color: #227acc;
+    --border-color: #444444;
+    --safe-area-top: env(safe-area-inset-top, 0px);
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--main-bg); }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--active-color); }
+
+html {
+    background: var(--main-bg);
+    scrollbar-gutter: stable;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    background: var(--main-bg);
+    color: var(--main-color);
+    margin: 0;
+    padding: calc(24px + var(--safe-area-top)) 12px 12px;
+    line-height: 1.5;
+}
+
+#loading, #main-menu {
+    position: fixed;
+    z-index: 2000;
+    background: var(--main-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100dvh;
+    top: 0;
+    left: 0;
+}
+
+#main-menu {
+    gap: 20px;
+    padding: 20px;
+    /*display: none;*/
+}
+
+#loading .name {
+    font-size: 100px;
+    text-align: center;
+}
+#main-menu .name {
+    font-size: 60px;
+    line-height: 60px;
+    text-align: center;
+}
+
+#main-menu .main-menu-tab {
+    width: 100%;
+    max-width: 300px;
+    font-size: 24px;
+    padding: 18px;
+    color: var(--active-color);
+    border: 2px solid var(--active-color);
+    border-radius: 16px;
+    text-align: center;
+    transition: background 0.3s;
+}
+#main-menu .main-menu-tab:active {
+    background: rgba(34, 122, 204, 0.2);
+}
+
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.list-empty {
+    text-align: center;
+}
+
+.card {
+    background: var(--card-bg);
+    border-radius: 16px; /* Более мягкие углы */
+    padding: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.card.tier-1, .card.tier-2, .card.tier-3, .card.tier-4 {
+    padding-left: 16px;
+    border-left: 1px solid var(--main-color);
+}
+
+.card-top,
+.card-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.card-button {
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid var(--active-color);
+    background: var(--active-color);
+    color: var(--main-color);
+    cursor: pointer;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+}
+
+.gender {
+    margin-left: 5px;
+}
+.gender.woman {
+    color: pink;
+}
+.gender.man {
+    color: lightskyblue;
+}
+.avatar {
+    width: 100px;
+    height: 150px;
+    border-radius: 4px;
+}
+.card-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.image-popup, .text-popup, .map-loc-popup, .graph-popup, .char-editor-popup, .master-eco-popup {
+    position: fixed;
+    background: rgba(0, 0, 0, .8);
+    padding: 40px max(calc(50vw - 180px), 0px) 20px;
+    width: 100%;
+    max-width: 100%;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    overflow-y: scroll;
+}
+.image-popup, .text-popup, .map-loc-popup, .graph-popup, .char-editor-popup, .master-eco-popup {
+    backdrop-filter: blur(10px); /* Эффект размытия задника */
+    background: rgba(0, 0, 0, 0.85);
+}
+
+.map-loc-popup {
+    z-index: 100;
+}
+.map-loc-popup .location {
+    background: #000;
+    margin: 0;
+    padding: 12px 0;
+    text-align: center;
+    font-weight: normal;
+}
+.map-loc-popup .title {
+    background: #000;
+    margin: 0;
+    padding: 12px 0;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: underline;
+}
+
+.image-popup {
+    position: fixed;
+    z-index: 200;
+    background: rgba(0, 0, 0, .8);
+    padding: 0 max(calc(50vw - 200px), 0px);
+    display: flex;
+    align-items: center;
+    align-items: anchor-center;
+}
+.image-popup img {
+    width: 100%;
+}
+
+.text-popup {
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    align-items: anchor-center;
+}
+.text-popup div {
+    width: 100%;
+    background: rgb(0, 0, 0);
+    padding: 12px 6px;
+    max-height: calc(100vh - 72px);
+    overflow-y: scroll;
+}
+
+.graph-popup {
+    z-index:300;
+}
+
+.char-editor-popup {
+    z-index: 1000;
+}
+
+.name {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.filters {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.location {
+    grid-column: 1 / -1;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+input, select, textarea {
+    background: var(--card-bg);
+    border: 1px solid #444;
+    border-radius: 8px;
+    color: #fff;
+    padding: 8px 12px;
+    font-size: 14px;
+    max-width: 160px;
+}
+
+.field {
+    font-size: 14px;
+    margin: 3px 0;
+}
+
+
+.label {
+    color: #aaa;
+}
+.important {
+    color: var(--active-color);
+}
+
+.line-break {
+    flex-basis: 100%;
+    height: 0;
+}
+
+/*.wrapper {*/
+    /*display: none;*/
+    /*margin-top: 76px; !* Высота фиксированного хедера *!*/
+    /*animation: fadeIn 0.2s ease-out;*/
+/*}*/
+
+
+.wrapper {
+    display: none;
+    margin-top: 76px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    will-change: opacity, transform;
+}
+
+body.tab-map .map,
+body.tab-dices .dices,
+body.tab-tacticalField .tacticalField,
+body.tab-characters .chars,
+body.tab-factions .factions,
+body.tab-firstborn .firstborn,
+body.tab-pantheons .pantheons,
+body.tab-bosses .bosses,
+body.tab-history .history,
+body.tab-cosmology .cosmology,
+body.tab-legacies .legacies,
+body.tab-races .races,
+body.tab-talents .talents,
+body.tab-dlc .dlc,
+body.tab-quests .quests,
+body.tab-mechanics .mechanics,
+body.tab-gallery .gallery {
+    display: block;
+}
+
+body.tab-editor .editor-main {
+    display: flex;
+    margin-top: 76px;
+}
+
+/* Когда вкладка активна, она плавно "всплывает" */
+body[class*="tab-"] .wrapper[style*="display: block"],
+body.tab-map .map,
+body.tab-characters .chars,
+body.tab-editor .editor-main { /* и так далее для всех */
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+.select-menu {
+    /*max-width: 330px;*/
+    /*margin: 50px auto;*/
+    margin: 0 auto 12px;
+}
+.select-menu .select-btn {
+    display: flex;
+    height: 55px;
+    background: transparent;
+    padding: 20px;
+    font-size: 18px;
+    font-weight: 400;
+    border-radius: 8px;
+    border: 1px solid gold;
+    align-items: center;
+    cursor: pointer;
+    justify-content: space-between;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+.select-menu .options {
+    position: absolute;
+    width: 330px;
+    overflow-y: auto;
+    max-height: 295px;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    animation-name: fadeInDown;
+    -webkit-animation-name: fadeInDown;
+    animation-duration: 0.35s;
+    animation-fill-mode: both;
+    -webkit-animation-duration: 0.35s;
+    -webkit-animation-fill-mode: both;
+}
+.select-menu .options .option {
+    display: flex;
+    height: 55px;
+    cursor: pointer;
+    padding: 0 16px;
+    border-radius: 8px;
+    align-items: center;
+    background: #fff;
+}
+.select-menu .options .option:hover {
+    background: #f2f2f2;
+}
+.select-menu .options .option i {
+    font-size: 25px;
+    margin-right: 12px;
+}
+.select-menu .options .option .option-text {
+    font-size: 18px;
+    color: #333;
+}
+
+.select-btn i {
+    font-size: 25px;
+    transition: 0.3s;
+}
+
+.select-menu.active .select-btn i {
+    transform: rotate(-180deg);
+}
+.select-menu.active .options {
+    display: block;
+    opacity: 0;
+    z-index: 10;
+    animation-name: fadeInUp;
+    -webkit-animation-name: fadeInUp;
+    animation-duration: 0.4s;
+    animation-fill-mode: both;
+    -webkit-animation-duration: 0.4s;
+    -webkit-animation-fill-mode: both;
+}
+
+@keyframes fadeInUp {
+    from {
+        transform: translate3d(0, 30px, 0);
+    }
+    to {
+        transform: translate3d(0, 0, 0);
+        opacity: 1;
+    }
+}
+@keyframes fadeInDown {
+    from {
+        transform: translate3d(0, 0, 0);
+        opacity: 1;
+    }
+    to {
+        transform: translate3d(0, 20px, 0);
+        opacity: 0;
+    }
+}
+

@@ -1,0 +1,205 @@
+.editor-main {
+    font-family: sans-serif;
+    height: 100vh;
+    margin: 0;
+
+    height: calc(100vh - 90px);
+    overflow: scroll;
+}
+
+.editor-main #editor-list {
+    width: 260px;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    overflow-y: auto;
+    background: var(--main-bg);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+}
+.editor-main #editor-list.short {
+    width: 32px;
+}
+
+.editor-main #editor-list button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    cursor: pointer;
+    height: auto;
+
+    display: flex;
+    gap: 6px;
+
+    background: #0f1220;
+    color: #eee;
+}
+
+.editor-main #editor-list button:hover {
+    background: #f0f0f0;
+}
+
+.editor-main #editor-list button.active {
+    background: var(--active-color);
+    color: white;
+}
+
+.editor-main #editor-list button img {
+    height: 15px;
+}
+
+.editor-main #editor-list .short-list-button {
+    display: none;
+}
+
+.editor-main #editor-list.short {
+    width: 32px;
+}
+
+@media only screen and (max-width: 900px) {
+    .editor-main #editor-list .short-list-button {
+        display: block;
+    }
+    .editor-main #editor-list button:hover {
+        background: #0f1220;
+    }
+}
+
+.editor-main #editor-list.short span {
+    display: none;
+}
+
+.editor-main #editor {
+    flex: 1;
+    padding: 0 20px 20px;
+    overflow-y: auto;
+}
+
+.editor-main button {
+    height: 40px;
+    background: transparent;
+    border: 1px solid;
+    border-radius: 6px;
+
+    min-height: 40px; /* Минимум для тача */
+    padding: 0 16px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: filter 0.2s;
+}
+.editor-main button.small {
+    min-height: 32px;
+    height: 32px;
+    width: 32px;
+    padding: 0 10px;
+}
+.editor-main button.round {
+    border-radius: 50%;
+}
+.editor-main button.del { background: #8e1c1c; border: none; color: #fff; }
+.editor-main button.add { background: #1c6e3d; border: none; color: #fff; }
+.editor-main button.save { background: var(--active-color); border: none; color: #fff; }
+/*.editor-main button.del {*/
+    /*border: 1px solid red;*/
+    /*background: red;*/
+    /*color: white;*/
+/*}*/
+/*.editor-main button.add {*/
+    /*border: 1px solid darkgreen;*/
+    /*background: darkgreen;*/
+    /*color: white;*/
+/*}*/
+/*.editor-main button.save {*/
+    /*border: 1px solid gold;*/
+    /*background: gold;*/
+    /*color: white;*/
+/*}*/
+
+.editor-main input, .editor-main select, .editor-main textarea {
+    /*width: 100%;*/
+    /*max-width: 360px;*/
+    /*margin-bottom: 10px;*/
+    /*padding: 6px;*/
+
+    width: 100%;
+    max-width: 100%; /* На мобилках лучше на всю ширину */
+    background: var(--card-bg);
+    border: 1px solid #444;
+    border-radius: 8px;
+    color: #fff;
+    padding: 12px; /* Увеличил отступы */
+    font-size: 16px; /* Предотвращает авто-зум в iOS/Android */
+    margin-bottom: 16px;
+}
+
+.editor-main input[type="file"] {
+    width: 200px;
+    background: none;
+    border: none;
+}
+
+.editor-main #avatar {
+    width: 200px;
+    height: 300px;
+}
+
+.editor-main textarea {
+    min-height: 120px;
+}
+
+.editor-main .row {
+    margin-bottom: 12px;
+    max-width: 360px;
+}
+
+.editor-main .row-cols {
+    display: flex;
+    gap: 10px;
+}
+
+.editor-main .col.avatar-select {
+    background: var(--card-bg);
+    border: 1px solid #444;
+    border-radius: 8px;
+}
+
+.editor-main .row-cols .row-cols {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.editor-main .actions {
+    margin-top: 20px;
+}
+
+.editor-main button.primary {
+    padding: 8px 14px;
+}
+
+.editor-main .char-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.editor-main .char-chips div {
+    /*flex: 1;*/
+    border: 1px solid darkgreen;
+
+    background: rgba(34, 122, 204, 0.1);
+    border: 1px solid var(--active-color);
+    border-radius: 20px; /* Округлые чипсы */
+    padding: 6px 6px 6px 12px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+
+
+
+
+
+
+

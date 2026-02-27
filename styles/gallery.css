@@ -1,0 +1,48 @@
+.art-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(${thumbSize}px, 1fr));
+    gap: 12px;
+}
+.art-thumb {
+    background: #171a21;
+    border-radius: 12px;
+    padding: 6px;
+    cursor: pointer;
+    transition: transform .15s ease;
+}
+.art-thumb:hover {
+    transform: scale(1.04);
+}
+.art-thumb img {
+    width: 100%;
+    /*max-height: 290px;*/
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.art-viewer {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+.art-viewer img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 14px;
+}
+.art-close {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    font-size: 28px;
+    color: #fff;
+    cursor: pointer;
+    opacity: .7;
+}
+.art-close:hover {
+    opacity: 1;
+}

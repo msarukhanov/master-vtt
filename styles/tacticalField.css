@@ -1,0 +1,733 @@
+.tactical-field {
+    /*background:#1e1e1e;*/
+    color:#eee;
+    font-family:sans-serif;
+    padding: 0 20px;
+    justify-content: center;
+    align-items: start;
+    text-align: center;
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    --grid-cell: 60px;
+
+    flex-direction: column;
+}
+
+.tactical-field button {
+    border: none;
+    border-radius: 8px;
+    background: var(--main-bg);
+    border: 1px solid var(--border-color);
+    color: var(--active-color);
+    font-size: 16px;
+    padding: 6px 12px;
+}
+
+.tactical-field input, .tactical-field select {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--main-bg);
+    color: var(--main-color);
+    font-size: 14px;
+    padding: 6px;
+}
+
+.tactical-field input {
+    max-width: 50px;
+}
+
+/*.tactical-field select {*/
+    /*display: none;*/
+/*}*/
+
+.tactical-field select::after {
+    content: "\A";
+    white-space: pre;
+}
+
+.tactical-field .controls {
+    /*display:flex;*/
+    /*gap:8px;*/
+    /*flex-wrap:wrap;*/
+    /*margin-bottom:10px;*/
+    /*max-width: 360px;*/
+    /*justify-content: center;*/
+    /*justify-self: center;*/
+
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+    max-width: 320px;
+    /* justify-content: center; */
+    justify-self: center;
+}
+
+.tactical-field .controls .tf-edit-row {
+    width: 100%;
+    display: flex;
+    /*justify-content: space-between;*/
+    /*align-items: center;*/
+    gap: 10px;
+}
+
+.tf-edit-row label {
+    font-size: 0.9em;
+    color: #bbb;
+}
+
+.tf-edit-row input {
+    /*flex: 0 1 120px;*/
+}
+
+.tactical-field .controls.play {
+    flex-direction: column;
+}
+
+.tactical-field .controls.play .tf-initiative-line {
+    display: flex;
+}
+
+
+.tactical-field button.active {
+    border: 2px solid var(--active-color);
+}
+
+.tactical-field .controls .tf-char-select,
+.tactical-field .controls .tf-obj-select,
+.tactical-field .controls .tf-terrain-select,
+.tactical-field .controls .tf-height-select {
+    display: none;
+}
+
+.tactical-field .controls.mode-character .tf-char-select,
+.tactical-field .controls.mode-object .tf-obj-select,
+.tactical-field .controls.mode-terrain .tf-terrain-select,
+.tactical-field .controls.mode-terrain .tf-height-select {
+    display: inline-block;
+}
+
+.tactical-field .controls.play *:not(.tf-toggle-mode) {
+    display: none;
+}
+
+.tactical-field .controls.play .tf-editor-container,
+.tactical-field .controls.play .tf-editor-container * {
+    display: none;
+}
+
+.tactical-field .grid {
+    /*display:grid;*/
+    /*gap:2px;*/
+    /*background:#444;*/
+    /*width:fit-content;*/
+
+    /*overflow: scroll;*/
+    /*max-width: 100%;*/
+    /*max-height: 100%;*/
+
+    /*order: 4;*/
+    /*flex-basis: 100%;*/
+
+    /*!*justify-self: center;*!*/
+    /*!*justify-content: center;*!*/
+
+    /*border: 2px solid #444;*/
+    /*border-radius: 4px;*/
+    /*box-shadow: 0 0 20px rgba(0,0,0,0.5);*/
+    /*scrollbar-width: thin; !* Для Firefox *!*/
+
+    position: relative;
+    overflow: scroll;
+    /*overflow: visible;*/
+}
+.tactical-field .grid canvas {
+    background: #444;
+    border: 2px solid #444;
+    border-radius: 4px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+.tactical-field .controls {
+    order: 1;
+}
+.tactical-field .grid-wrapper {
+    order: 2;
+    overflow: scroll;
+    max-width: 100%;
+    max-height: 100%;
+}
+.tactical-field .tf-initiative-line {
+    order: 2;
+}
+.tactical-field .tf-editor-container {
+    order: 3;
+}
+
+
+
+/* CHARACTER */
+
+.tactical-field .character, .ghost-character {
+    width: calc(var(--grid-cell) - 10px);
+    height: calc(var(--grid-cell) - 10px);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    color:#fff;
+    cursor:pointer;
+    user-select:none;
+
+
+    transition: all 0.3s ease-out; /* Плавное движение */
+    position: relative;
+    z-index: 5;
+}
+
+.tactical-field .character, .ghost-character img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* Полоска здоровья над юнитом */
+.tactical-field .character .hp-bar-wrap {
+    position: absolute;
+    top: -8px;
+    width: 80%;
+    height: 4px;
+    background: #444;
+    border-radius: 2px;
+    overflow: hidden;
+}
+.tactical-field .character .hp-bar-fill {
+    height: 100%;
+    background: #2ecc71;
+    transition: width 0.3s;
+}
+
+/* Стилизация символа юнита */
+.tactical-field .character .unit-symbol {
+    font-size: 24px;
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+/* Номер юнита в команде (teamId) */
+.tactical-field .character .unit-id-badge, .unit-num {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 12px;
+    background: rgba(0,0,0,0.5);
+    padding: 1px 3px;
+    border-radius: 3px;
+}
+.tactical-field .character .unit-num {
+    top: auto;
+    bottom: 0;
+}
+/* Анимация выбранного персонажа */
+.tactical-field .character.selected {
+    outline: 3px solid #fff;
+    animation: pulse 1.5s infinite;
+    z-index: 10;
+}
+
+.tactical-field .selected {
+    outline:3px solid #fff;
+}
+
+.tf-team-1 { background:#e74c3c; }
+.tf-team-2 { background:#3498db; }
+.tf-team-3 { background:#2ecc71; }
+.tf-team-4 { background:#f1c40f; color:#000; }
+.tf-team-5 { background:#9b59b6; }
+.tf-team- { background:#333; }
+
+
+/* OBJECT */
+.tactical-field .object {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(var(--grid-cell) - 10px);
+}
+
+.tactical-field .object { width:100%; height:100%; }
+.tactical-field .object-tree { background:#27ae60; }
+.tactical-field .object-rock { background:#7f8c8d; }
+.tactical-field .object-chest { background:#d35400; }
+.tactical-field .object-wall { background:#555; }
+.tactical-field .object-water { background:#2980b9; }
+.tactical-field .object-pit { background:#000; }
+.tactical-field .object-lava { background: #ff3c00; }
+
+.tactical-field .object-tree::after { content: '🌳'; }
+.tactical-field .object-rock::after { content: '🪨'; }
+.tactical-field .object-mountain::after { content: '⛰'; }
+.tactical-field .object-chest::after { content: '📦'; }
+.tactical-field .object-wall::after { content: '🧱'; }
+
+.tactical-field .object-town_hall::after { content: '🏛'; }
+.tactical-field .object-house::after { content: '🏠'; }
+.tactical-field .object-temple::after { content: '⛪'; }
+.tactical-field .object-well::after { content: '⛲'; }
+.tactical-field .object-lamp::after { content: '🏮'; }
+
+.tactical-field .object-water::after { content: '💧'; }
+.tactical-field .object-pit::after { content: '🕳️'; }
+.tactical-field .object-lava::after { content: '🔥'; }
+.tactical-field .object-portal::after { content: '🚪'; }
+.tactical-field .object-corpse::after { content: '☠'; }
+
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0.7); }
+    70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(255,255,255,0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+}
+
+/* Подсказка для режимов */
+.tactical-field .controls.mode-erase button.active {
+    background: #c0392b; /* Красный фон для ластика */
+    color: #fff;
+}
+
+.tf-char-panel {
+    background: var(--main-bg);
+    border: 2px solid var(--active-color);
+    border-radius: 12px;
+    padding: 15px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: left;
+    max-width: 400px;
+}
+
+.tf-char-panel h3 {
+    margin: 0;
+}
+
+
+
+.tf-toggle-mode {
+    background: var(--active-color) !important;
+    color: #000 !important;
+    font-weight: bold;
+    /*margin-bottom: 10px;*/
+}
+
+.tf-char-panel.compact {
+    max-width: 100%;
+    background: #252525;
+}
+
+.name-row {
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 12px;
+
+    justify-content: center;
+    text-align: center;
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    row-gap: 6px;
+    column-gap: 12px;
+}
+
+.name-row label {
+    /*min-width: 20%;*/
+}
+
+.name-row input {
+    width: 100%;
+    max-width: 80px;
+    font-weight: bold;
+    font-size: 1.1em;
+    border-bottom: 2px solid var(--active-color) !important;
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    row-gap: 6px;
+    column-gap: 12px;
+}
+
+.grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+}
+
+.tf-edit-row input[type="number"] {
+    max-width: 60px;
+}
+
+.tf-stats-grid input[type="number"] {
+    max-width: 60px;
+    margin: 0 auto;
+}
+
+.mini-field {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.mini-field label { font-size: 10px; color: #888; }
+.mini-field input { width: 100%; text-align: center; padding: 4px; height: 35px;}
+
+.tf-edit-row.triple {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+.tf-edit-row.triple label { flex: 1; }
+.tf-edit-row.triple input[type="number"] { width: 50px; }
+.tf-edit-row.triple input[type="checkbox"] { width: 20px; height: 20px; }
+
+
+.tf-play-card {
+    background: #2c3e50;
+    border: 2px solid #ecf0f1;
+    border-radius: 12px;
+    padding: 15px;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.tf-play-card .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.2em;
+    border-bottom: 1px solid #555;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+}
+
+.tf-play-card .team-badge {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+}
+
+.tf-play-card .card-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    font-size: 0.9em;
+    margin-bottom: 15px;
+}
+
+.tf-play-card .card-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.tf-play-card .card-actions button {
+    flex: 1;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 6px;
+    background: #34495e;
+    color: white;
+    border: 1px solid #7f8c8d;
+}
+
+.tf-play-card .card-actions button:hover {
+    background: var(--active-color);
+    color: black;
+}
+
+.tf-initiative-line {
+    display: none;
+    gap: 5px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow-x: auto;
+    border: 1px solid #444;
+    min-height: 60px;
+    align-items: center;
+}
+
+.grid-wrapper.play .tf-initiative-line {
+    display: flex;
+}
+
+.tf-initiative-line .tf-init-item {
+    position: relative;
+    min-width: 50px;
+    height: 50px;
+    border: 2px solid #555;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+}
+
+.tf-initiative-line .tf-init-item.active {
+    border-color: #fff;
+    transform: scale(1.1);
+    box-shadow: 0 0 10px #fff;
+    z-index: 2;
+}
+
+.tf-initiative-line .tf-init-item .unit-img {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+}
+
+.tf-initiative-line .tf-init-item .unit-num {
+    position: absolute;
+    top: auto;
+    bottom: -2px;
+    right: -2px;
+    background: #000;
+    color: #fff;
+    font-size: 10px;
+    padding: 1px 4px;
+    border: 1px solid #555;
+    border-radius: 3px;
+}
+
+.tf-initiative-line .tf-init-item .init-value {
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    background: var(--active-color);
+    color: #000;
+    font-size: 9px;
+    font-weight: bold;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+.tactical-field .cell {
+    position: relative;
+    transition: all 0.2s;
+    border: 1px solid rgba(0,0,0,0.1);
+
+    width: calc(var(--grid-cell));
+    height: calc(var(--grid-cell));
+    background:#2a2a2a;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+/* Эффект при наведении на клетку */
+.tactical-field .cell:hover {
+    /*background: #333;*/
+    border-color: var(--active-color);
+    box-shadow: inset 0 0 5px rgba(255,255,255,0.1);
+}
+
+/* Видимая зона */
+.tactical-field .cell.fog-visible {
+    filter: brightness(1);
+    box-shadow: inset 0 0 5px rgba(255,255,255,0.1);
+}
+.tactical-field .cell.can-walk {
+    background: rgba(46, 204, 113, 0.2); /* Прозрачный зеленый */
+    cursor: pointer;
+}
+.tactical-field .cell.can-walk:hover { background: rgba(46, 204, 113, 0.4); }
+
+.tactical-field .cell.can-attack {
+    background: rgba(231, 76, 60, 0.2); /* Прозрачный красный */
+    cursor: crosshair;
+}
+.tactical-field .cell.can-attack:hover { background: rgba(231, 76, 60, 0.5); }
+
+/* Базовые стили клетки теперь зависят от террейна */
+.tactical-field .cell.terrain-grass { background: #27ae60; }
+.tactical-field .cell.terrain-stone { background: #7f8c8d; }
+.tactical-field .cell.terrain-water { background: #2980b9; opacity: 0.8; }
+.tactical-field .cell.terrain-lava  { background: #e67e22; box-shadow: inset 0 0 10px #f1c40f; }
+
+/* Визуализация высоты */
+.tactical-field .cell[data-height="1"] { transform: translateZ(0); filter: brightness(1); }
+.tactical-field .cell[data-height="1.5"] { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 2px 0 #222; }
+.tactical-field .cell[data-height="2"] { transform: translateY(-5px); filter: brightness(1.2); box-shadow: 0 5px 0 #222; }
+.tactical-field .cell[data-height="2.5"] { transform: translateY(-8px); filter: brightness(1.3); box-shadow: 0 8px 0 #222; }
+.tactical-field .cell[data-height="3"] { transform: translateY(-11px); filter: brightness(1.4); box-shadow: 0 11px 0 #222; }
+
+.tactical-field .cell.fog-explored {
+    filter: brightness(0.6) grayscale(0.5);
+}
+
+.tactical-field .cell.fog-hidden * {
+    display: none !important; /* Прячем юнитов и объекты в тумане */
+}
+.tactical-field .cell.fog-hidden {
+    background: #000 !important;
+    filter: brightness(0);
+    transform: none;
+    box-shadow: none;
+}
+
+.tactical-field .cell.can-cast {
+    /* Используем inset shadow, чтобы не портить внешнюю тень высоты */
+    box-shadow: inset 0 0 15px rgba(241, 196, 15, 0.6);
+    background-color: rgba(241, 196, 15, 0.2);
+    cursor: crosshair;
+}
+
+.tactical-field .cell.can-cast:hover {
+    background-color: rgba(241, 196, 15, 0.4);
+}
+
+/* --- Слой зоны поражения (Red AoE) --- */
+.tactical-field .cell.aoe-target {
+    /* Делаем чуть ярче, чтобы выделялось на фоне террейна */
+    background-color: rgba(231, 76, 60, 0.6) !important;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
+    outline: 2px dashed rgba(255, 255, 255, 0.5);
+    outline-offset: -4px;
+    z-index: 10; /* Чтобы быть выше соседей */
+    animation: tf-aoe-pulse 1s infinite alternate;
+}
+
+.tactical-field .cell.can-cast.fog-hidden,
+.tactical-field .cell.aoe-target.fog-hidden {
+    filter: brightness(1) !important; /* Возвращаем видимость для тактики */
+    background: #1a1a1a !important; /* Делаем чуть светлее черного */
+}
+
+/* Сама зона AoE должна быть очень яркой */
+.tactical-field .cell.aoe-target {
+    background-color: rgba(255, 0, 0, 0.7) !important; /* Увеличили opacity */
+    box-shadow: 0 0 15px #ff0000, inset 0 0 10px #000;
+    z-index: 20;
+}
+
+@keyframes tf-aoe-pulse {
+    from { filter: brightness(1.2); }
+    to { filter: brightness(1.5); }
+}
+.unit-status-icons {
+    position: absolute;
+    top: -15px;
+    right: 0;
+    display: flex;
+    gap: 2px;
+}
+.status-mini-icon {
+    font-size: 12px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- Кнопки в интерфейсе (Play Card) --- */
+.play-skills-row {
+    display: flex;
+    gap: 5px;
+    padding: 10px 0;
+    overflow-x: auto;
+}
+
+.skill-btn {
+    background: #34495e;
+    color: white;
+    border: 1px solid #5d6d7e;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    white-space: nowrap;
+}
+
+.skill-btn:active {
+    background: #e67e22; /* Оранжевый при клике */
+    transform: translateY(2px);
+}
+
+
+
+.symbol-row {
+    display: flex;
+    gap: 4px;
+    /*flex-wrap: wrap;*/
+    margin-bottom: 10px;
+    max-width: 250px;
+    overflow-x: scroll;
+}
+.symbol-btn {
+    padding: 5px !important;
+    font-size: 18px !important;
+    background: #333 !important;
+}
+.symbol-btn.active {
+    border: 2px solid var(--active-color) !important;
+}
+
+.card-inventory {
+    margin-top: 10px;
+    border-top: 1px solid #444;
+    padding-top: 5px;
+    text-align: left;
+}
+.inv-list {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+.inv-item {
+    background: #444;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    border: 1px solid #666;
+}
+
+.tf-damage-popup {
+    position: fixed;
+    pointer-events: none;
+    font-weight: bold;
+    font-size: 20px;
+    color: #e74c3c; /* Красный для урона */
+    text-shadow: 2px 2px 0px #000;
+    z-index: 10001;
+    animation: floatUp 1s ease-out forwards;
+}
+
+@keyframes floatUp {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-50px); opacity: 0; }
+}
+
+.tf-damage-popup.crit {
+    color: #f1c40f;
+    font-size: 26px;
+    scale: 1.2;
+}
+
+.tf-projectile {
+    width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    filter: drop-shadow(0 0 5px orange);
+}
+.projectile-fireball { filter: drop-shadow(0 0 8px red); }

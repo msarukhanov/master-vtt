@@ -1,0 +1,1 @@
+gameData.spaceDementia.tacticalMaps = [];
