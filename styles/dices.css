@@ -9,7 +9,7 @@
 
 .dice-player.card {
     /*background: var(--card-bg);*/
-    border: 1px solid var(--active-color);
+    border: 1px solid var(--gold-dim);
     border-radius: 12px;
     padding: 15px;
     min-width: 220px;
@@ -20,7 +20,7 @@
 
 .dice-player.card:hover {
     transform: none;
-    box-shadow: 0 0 10px var(--active-color);
+    box-shadow: 0 0 10px var(--gold-dim);
 }
 
 /* Шапка с именем */
@@ -41,7 +41,7 @@
 }
 
 .p-name:focus {
-    border-bottom-color: var(--active-color);
+    border-bottom-color: var(--gold-dim);
     outline: none;
 }
 
@@ -69,7 +69,7 @@
 
 /* Инпуты */
 .dice-field input[type="number"] {
-    background: var(--input-bg);
+    background: var(--bg-input);
     border: 1px solid #444;
     border-radius: 6px;
     color: #fff;
@@ -80,14 +80,14 @@
 }
 
 .dice-field input:focus {
-    border-color: var(--active-color);
+    border-color: var(--gold-dim);
     outline: none;
 }
 
 /* Чекбоксы внутри лейблов */
 .dice-field label input[type="checkbox"] {
     cursor: pointer;
-    accent-color: var(--active-color);
+    accent-color: var(--gold);
 }
 
 /* Кнопка удаления */
@@ -180,7 +180,7 @@
     color: #bbb;
 }
 
-.log-entry b { color: var(--active-color); }
+.log-entry b { color: var(--gold); }
 .log-player { color: #888; margin-right: 4px; }
 
 
@@ -199,7 +199,7 @@
 
 .char-manager h3 {
     margin-top: 0;
-    color: #ffca28; /* Золотистый акцент для имени */
+    color: var(--gold);
     border-bottom: 1px solid #444;
     padding-bottom: 10px;
     text-align: center;
@@ -248,7 +248,7 @@
 .char-manager .input-wrap input {
     width: 60px;
     height: 35px;
-    background: #121212;
+    background: var(--bg-input);
     border: 1px solid #555;
     color: #fff;
     text-align: center;
@@ -258,7 +258,7 @@
 }
 
 .char-manager .input-wrap input:focus {
-    border-color: #ffca28;
+    border-color: var(--gold);
 }
 
 /* Кнопка сохранения внизу */
@@ -396,7 +396,7 @@
     position: absolute;
     top: -5px;
     right: -5px;
-    background: #ffca28;
+    background: var(--gold);
     color: #000;
     border-radius: 50%;
     width: 18px;

@@ -13,6 +13,7 @@ gameData.storiesOfTheEnd.app = {
         {
             groupKey: "game",
             tabs: [
+                {tabKey: "dashboard", code: "dashboard"},
                 {tabKey: "dices", code: "dices"},
                 {tabKey: "tacticalField", code: "tacticalField"},
                 {tabKey: "charGen", code: "chargen"},
@@ -78,9 +79,12 @@ gameData.storiesOfTheEnd.app = {
     formFieldsSettings: {
         characters: {
             avatar: true,
-            personal: true,
-            profession: true,
-            locations: true,
+            fullheight: true,
+            personal: false,
+            // profession: true,
+            // locations: true,
+            class: true,
+            level: true,
 
             appearance: true,
             personality: true,
@@ -95,8 +99,11 @@ gameData.storiesOfTheEnd.app = {
         factions: {
             avatar: true,
 
-            profession: true,
-            locations: true,
+            color: true,
+            tier: true,
+
+            // profession: true,
+            // locations: true,
 
             description: true,
             philosophy: true,
@@ -132,6 +139,20 @@ gameData.storiesOfTheEnd.app = {
             avatar: true,
             description: true,
             ltwh: true,
+        },
+
+        triggers: {
+            triggerBase: true, // Базовые параметры (тип, повторяемость)
+            logic: true        // Списки условий и действий
+        },
+        quests: {
+            description: true,
+            questLogic: true // Наш новый блок со стадиями
+        },
+        dialogs: {
+            character: true, // Привязка к NPC из реестра
+            dialogView: true, // Настройки камер (2sides, closeUp)
+            dialogLogic: true // Список узлов (Nodes)
         }
     }
 };

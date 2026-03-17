@@ -10,7 +10,7 @@
 /* Сайдбар (теперь верхняя панель) */
 .dashboard-wrapper .dashboard-sidebar {
     width: 100%; /* Исправлено: на всю ширину вместо 260px */
-    background: var(--card-bg);
+    background: var(--bg-panel);
     border-right: none; /* Убрано */
     border-bottom: 1px solid var(--border-color); /* Добавлено для разделения */
     display: flex;
@@ -22,7 +22,7 @@
     padding: 20px;
     font-weight: bold;
     font-size: 1.2rem;
-    color: #ffd700;
+    color: var(--gold);
     border-bottom: none; /* Убрано, так как теперь в ряд */
 }
 
@@ -49,13 +49,13 @@
 }
 
 .dashboard-wrapper .nav-btn:hover {
-    background: #333;
-    color: #fff;
+    background: var(--gold-dim);
+    color: var(--bg-main);
 }
 
 .dashboard-wrapper .nav-btn.active {
-    background: #4a4a4a;
-    color: #ffd700;
+    background: var(--gold);
+    color: var(--bg-main);
     font-weight: bold;
 }
 
@@ -79,11 +79,14 @@
 }
 
 .dashboard-wrapper .entity-card {
-    background: var(--card-bg);
+    background: var(--bg-panel);
     border-radius: 8px;
     padding: 20px;
     border: 1px solid var(--border-color);
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+
+    display: flex;
+    flex-direction: column;
 }
 
 .dashboard-wrapper .entity-card h3 {
@@ -112,7 +115,7 @@
 
 .dashboard-wrapper .field-row input[type="checkbox"] {
     cursor: pointer;
-    accent-color: #ffd700;
+    accent-color: var(--gold);
 }
 
 .dashboard-wrapper .field-row:hover {
@@ -136,18 +139,18 @@
 
 .dashboard-wrapper .btn-primary {
     background: #2e7d32; /* Зеленый для создания */
-    font-weight: bold;
+    /*font-weight: bold;*/
 }
 
 .dashboard-wrapper .btn-danger {
     background: #c62828; /* Красный для удаления */
-    width: 100%;
+    /*width: 100%;*/
 }
 
 /* Инпуты */
 .dashboard-wrapper input[type="text"] {
     width: 100%;
-    background: #1a1a1a;
+    background: var(--bg-main);
     border: 1px solid #444;
     color: #fff;
     padding: 8px;
@@ -156,7 +159,7 @@
 }
 
 .dashboard-wrapper input[type="text"]:focus {
-    border-color: #ffd700;
+    border-color: var(--gold);
     outline: none;
 }
 

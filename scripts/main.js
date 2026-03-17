@@ -2,29 +2,26 @@ let gameData = {
     'storiesOfTheEnd': {},
     'losingHeaven': {},
     'spaceDementia': {}
-}, data = {}, currentGame = '', currentSeason = null, currentTab = '', groupedTabs, mapSettings, seasons, avatars;
+}, data = {}, currentGame = '', currentSeason = null, currentTab = '', groupedTabs, mapSettings, seasons, avatars, fullheight;
 
 let images = {
     'storiesOfTheEnd': {
         avatars: null,
         map: null,
-        mapCharacters: [],
     },
     'losingHeaven': {
         avatars: null,
         map: null,
-        mapCharacters: [],
     },
     'spaceDementia': {
         avatars: null,
         map: null,
-        mapCharacters: [],
     }
 };
 
 const listKeys = ["characters", "locations", "factions", "firstborn", "pantheons", "bosses", "classes", "items",
-    "campaigns", "quests", "history", "cosmology", "mechanics", "talents", "abilities",
-    "races", "legacies", "dlc"];
+    "campaigns", "quests", "triggers", "history", "cosmology", "mechanics", "talents", "abilities",
+    "races", "peoples", "legacies", "dlc"];
 
 const seasonDefault = {
     id: "",
@@ -32,8 +29,6 @@ const seasonDefault = {
     name: "",
     players: [{name: "Player 1", id: "player1"}],
     playerCharacters: [{id:"char_id_1",player:"player1"}],
-    mapCharacters: [],
-    mapObjects: [],
     mapLocations: [],
     notes: [
         {id: 1, date: new Date(), text: "Season start", data: {}}
@@ -98,6 +93,7 @@ const main = {
         groupedTabs = [...currentData.app.groupedTabs];
         mapSettings = {...(currentData.app.mapSettings || {})};
         avatars = images[game].avatars;
+        fullheight = images[game].fullheight;
         // map = images[game].map;
 
         if(!gameData.players) {
@@ -108,34 +104,61 @@ const main = {
             gameData.seasons = [];
         }
 
-        [controls].forEach(system => system?.init?.());
+        // [controls].forEach(system => system?.init?.());
+        controls.init();
 
-        this.setCurrentSeason(gameData.seasons[0]);
+        main.setCurrentSeason(gameData.seasons[0]);
 
         elementById('main-menu').style.display = 'none';
 
-        controls.changeTab('map');
+        // controls.changeTab('map');
+        controls.changeTab('editor');
         // controls.changeTab('dashboard');
     },
     setCurrentSeason(season=null) {
         if(!season) {
             season = this.addSeason();
+            season.characters = gameData[currentGame]._characters;
+            if(!season.characters) {
+                season.characters = data.characters.map(c=>characterManager.prepareCharacter(c));
+            }
+            season.contracts = gameData[currentGame].contracts;
+            season.diplomacy = gameData[currentGame].diplomacy;
+            season.gridData = gameData[currentGame].gridData;
+            season.exploredCells = gameData[currentGame].exploredCells;
+        }
+
+        // season.characters = gameData.storiesOfTheEnd._characters;
+        // season.contracts = gameData.storiesOfTheEnd.contracts;
+        // season.diplomacy = gameData.storiesOfTheEnd.diplomacy;
+        // season.gridData = gameData.storiesOfTheEnd.gridData;
+        // season.exploredCells = gameData.storiesOfTheEnd.exploredCells;
+
+        if(!season.contracts) {
+            season.contracts = {};
         }
 
         currentSeason = season;
 
-        if(season.mapLocations.length) {
-            season.mapLocations.forEach(l=>{
-                let oldLocIndex = gameData[currentGame].locations.findIndex(i=>i.id===l.id);
-                if(oldLocIndex>-1) gameData[currentGame].locations[oldLocIndex] = {...gameData[currentGame].locations[oldLocIndex],...l};
-                else gameData[currentGame].locations.push(l);
-            })
-        }
+        currentSeason.characters = currentSeason.characters || {};
+        currentSeason.contracts = currentSeason.contracts || {};
+        currentSeason.diplomacy = currentSeason.diplomacy || {};
+        currentSeason.gridData = currentSeason.gridData || {};
+        currentSeason.exploredCells = currentSeason.exploredCells || {};
+
+        main.saveCurrentSeason();
+        // if(season.mapLocations.length) {
+        //     season.mapLocations.forEach(l=>{
+        //         let oldLocIndex = gameData[currentGame].locations.findIndex(i=>i.id===l.id);
+        //         if(oldLocIndex>-1) gameData[currentGame].locations[oldLocIndex] = {...gameData[currentGame].locations[oldLocIndex],...l};
+        //         else gameData[currentGame].locations.push(l);
+        //     })
+        // }
     },
     saveCurrentSeason() {
-        currentSeason.mapCharacters = map.mapCharacters;
-        currentSeason.mapObjects = map.mapObjects;
-        currentSeason.mapLocations = gameData[currentGame].locations.filter(i=>i.characters&&i.characters.length);
+        // currentSeason.mapCharacters = map.mapCharacters;
+        // currentSeason.mapObjects = map.mapObjects;
+        // currentSeason.mapLocations = gameData[currentGame].locations.filter(i=>i.characters&&i.characters.length);
 
         const index = gameData.seasons.findIndex(i=>i.id===Number(currentSeason.id));
         gameData.seasons[index] = currentSeason;

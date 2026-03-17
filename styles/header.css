@@ -3,9 +3,9 @@ header {
     top: 0;
     left: 0;
     right: 0;
-    height: 76px;
+    height: var(--header-height);
     padding: var(--safe-area-top) 12px 0;
-    background: var(--main-bg);
+    background: var(--bg-main);
     display: flex;
     align-items: center;
     gap: 12px;
@@ -30,46 +30,23 @@ header .tab {
 }
 
 header .tab.active {
-    border-color: var(--active-color);
+    border-color: var(--gold-dim);
     background: rgba(34, 122, 204, 0.1);
 }
 
 .menu-icon {
     top: 8px;
     /*padding-left: 10px;*/
-    display: inline-block;
+    display: flex;
     cursor: pointer;
     z-index: 1000;
-}
-
-.bar1, .bar2, .bar3 {
-    width: 30px;
-    height: 4px;
-    background-color: var(--main-color);
-    margin: 5px 0;
-    transition: 0.4s;
-}
-
-.menu-icon-change .bar1 {
-    transform: translate(0, 9px) rotate(-45deg);
-    background-color: var(--main-color);
-}
-
-.menu-icon-change .bar2 {
-    opacity: 0;
-    background-color: var(--main-color);
-}
-
-.menu-icon-change .bar3 {
-    transform: translate(0, -9px) rotate(45deg);
-    background-color: var(--main-color);
 }
 
 .header-search {
     background: none;
     border: none;
     color: white;
-    padding: 5px 10px;
+    padding: 5px 0;
     border-radius: 4px;
     cursor: pointer;
     display: flex;
@@ -82,8 +59,14 @@ header .tab.active {
     background: #444; /* Визуальный отклик для тача */
 }
 
+.menu-icon .icon ,
 .header-search .icon {
     font-size: 30px;
+    width: 30px;
+    height: 30px;
+    align-items: center;
+    display: flex;
+    pointer-events: none;
 }
 
 .header-menu-inner {
@@ -103,13 +86,13 @@ header .tab.active {
 }
 
 .header-menu-inner .left-menu-title:hover {
-    color: var(--active-color);
+    color: var(--gold-dim);
 }
 
 .header-menu-inner .main-tab-inner {
     position: fixed;
     z-index: 50;
-    background: var(--main-bg);
+    background: var(--bg-main);
     padding: 6px;
     text-align: left;
     flex-direction: column;
@@ -121,7 +104,7 @@ header .tab.active {
 }
 
 .header-menu-inner .main-tab.open .left-menu-title {
-    color: var(--active-color);
+    color: var(--gold-dim);
 }
 
 .header-menu-inner .main-tab:hover .main-tab-inner {
@@ -139,15 +122,21 @@ header .tab.active {
 }
 
 .header-menu-inner .left-menu-tab:hover {
-    color: var(--active-color);
+    color: var(--gold-dim);
 }
 
-@media only screen and (min-width: 800px) {
-    .menu-icon {display: none}
+@media only screen and (min-width: 1024px) {
+    :root {
+        --header-height: 76px;
+    }
+    .menu-icon {display: none;}
     .header-menu-inner {display: flex;}
 }
 
-@media only screen and (max-width: 799px) {
-    .menu-icon {display: inline-block}
+@media only screen and (max-width: 1023px) {
+    :root {
+        --header-height: 50px;
+    }
+    .menu-icon {display: flex;}
     .header-menu-inner {display: none;}
 }

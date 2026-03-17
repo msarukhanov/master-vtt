@@ -1,3 +1,5 @@
+
+
 const hexFunction = {
 
     getHexDistance(q1, r1, q2, r2) {
@@ -6,12 +8,10 @@ const hexFunction = {
             Math.abs(r1 - r2)) / 2;
     },
 
-    // Линейная интерполяция между двумя числами
     lerp(a, b, t) {
         return a + (b - a) * t;
     },
 
-    // Интерполяция между двумя гексами
     hexLerp(q1, r1, q2, r2, t) {
         return {
             q: hexFunction.lerp(q1, q2, t),
@@ -19,7 +19,6 @@ const hexFunction = {
         };
     },
 
-    // Получение всех гексов на линии (Raycasting)
     getLine(q1, r1, q2, r2) {
         const dist = hexFunction.getHexDistance(q1, r1, q2, r2);
         const results = [];
@@ -31,16 +30,27 @@ const hexFunction = {
         return results;
     },
 
-    hexToPixel(q, r, size) {
-        const x = size * (Math.sqrt(3) * q + Math.sqrt(3)/2 * r);
-        const y = size * (3/2 * r);
+    hexToPixel(q, r) {
+        const {sizes:{cellSize}, camera:{zoom, angleY}} = hexFunction.data;
+        const x = cellSize * zoom * (Math.sqrt(3) * q + Math.sqrt(3)/2 * r);
+        const y = cellSize * zoom * (3/2 * r) * angleY;
         return { x, y };
     },
 
-    pixelToHex(x, y, size) {
-        const q = (Math.sqrt(3)/3 * x - 1/3 * y) / size;
-        const r = (2/3 * y) / size;
-        return hexFunction.hexRound(q, r);
+    pixelToHex(x, y, offsetX = 0, offsetY = 0) {
+        const {sizes:{cellSize}, camera:{zoom, angleY}} = hexFunction.data;
+        // 1. Учитываем смещение камеры и текущий масштаб
+        // let q = ((Math.sqrt(3) / 3 * (x - offsetX)) - (1 / 3 * (y - offsetY))) / (cellSize * zoom);
+        // let r = (2 / 3 * (y / angleY - offsetY)) / (cellSize * zoom);
+
+        const _x = (x - offsetX) / (cellSize * zoom);
+        const _y = ((y - offsetY) / angleY) / (cellSize * zoom); // корректируем наклон здесь
+
+        // 2. Стандартная матрица для Pointy-Top гексов (гекс углом вверх)
+        let q = (Math.sqrt(3) / 3 * _x) - (1 / 3 * _y);
+        let r = (2 / 3 * _y);
+
+        return hexFunction.hexRound(q + 0.000001, r + 0.000001);
     },
 
     hexRound(q, r) {
@@ -48,24 +58,44 @@ const hexFunction = {
         let rq = Math.round(q);
         let rr = Math.round(r);
         let rs = Math.round(s);
-        const qDiff = Math.abs(rq - q), rDiff = Math.abs(rr - r), sDiff = Math.abs(rs - s);
-        if (qDiff > rDiff && qDiff > sDiff) rq = -rr - rs;
-        else if (rDiff > sDiff) rr = -rq - rs;
+
+        let q_diff = Math.abs(rq - q);
+        let r_diff = Math.abs(rr - r);
+        let s_diff = Math.abs(rs - s);
+
+        if (q_diff > r_diff && q_diff > s_diff) {
+            rq = -rr - rs;
+        } else if (r_diff > s_diff) {
+            rr = -rq - rs;
+        }
         return { q: rq, r: rr };
     },
 
-    getCell(grid, q, r) {
-        return grid[`${q}_${r}`] || null;
+    getCell(q, r) {
+        const {gridData} = hexFunction.data;
+        return gridData[`${q}_${r}`] || null;
     },
 
-    getNeighbors(grid, q, r) {
+    isNeighbor(q1, r1, q2, r2) {
+        const directions = [
+            {dq: 1, dr: 0}, {dq: 1, dr: -1}, {dq: 0, dr: -1},
+            {dq: -1, dr: 0}, {dq: -1, dr: 1}, {dq: 0, dr: 1}
+        ];
+        let check = false;
+        directions.forEach(d => {
+            if((q1 + d.dq) === q2 && (r1 + d.dr)===r2) check = true;
+        });
+        return check;
+    },
+
+    getNeighbors(q, r) {
         const directions = [
             {dq: 1, dr: 0}, {dq: 1, dr: -1}, {dq: 0, dr: -1},
             {dq: -1, dr: 0}, {dq: -1, dr: 1}, {dq: 0, dr: 1}
         ];
         const neighbors = [];
         directions.forEach(d => {
-            const neighbor = hexFunction.getCell(grid, q + d.dq, r + d.dr);
+            const neighbor = hexFunction.getCell(q + d.dq, r + d.dr);
             if (neighbor) {
                 neighbors.push({ q: q + d.dq, r: r + d.dr, data: neighbor });
             }
@@ -73,198 +103,425 @@ const hexFunction = {
         return neighbors;
     },
 
-    drawHex(ctx, x, y, size) {
-        ctx.beginPath();
+    getHexesInRadius(centerQ, centerR, radius) {
+        const results = [];
+        for (let q = -radius; q <= radius; q++) {
+            for (let r = Math.max(-radius, -q - radius); r <= Math.min(radius, -q + radius); r++) {
+                const targetQ = centerQ + q;
+                const targetR = centerR + r;
+                results.push(`${targetQ}_${targetR}`);
+            }
+        }
+        return results;
+    },
+
+    drawHex(x, y, noPath = false) {
+        const {ctx, sizes:{cellSize}, camera:{zoom, angleY}} = hexFunction.data;
+        if(!noPath) ctx.beginPath();
         for (let i = 0; i < 6; i++) {
             const angle = (Math.PI / 180) * (60 * i - 30);
-            const px = x + size * Math.cos(angle);
-            const py = y + size * Math.sin(angle);
+            const px = x + cellSize * zoom * Math.cos(angle);
+            const py = y + cellSize * zoom * Math.sin(angle)*angleY;
             if (i === 0) ctx.moveTo(px, py);
             else ctx.lineTo(px, py);
         }
-        ctx.closePath();
+        if(!noPath) ctx.closePath();
     },
 
-    drawHexBase(ctx, x, y, cell, size) {
+    drawGrid(x, y, lineWidth = 2) {
+        const {ctx} = hexFunction.data;
+        ctx.lineWidth = lineWidth;
+        hexFunction.drawHex(x, y);
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+        ctx.stroke();
+    },
+
+    // drawTerrain(x, y, terrain) {
+    //     const {ctx, sizes, camera:{zoom}} = hexFunction.data;
+    //     ctx.save();
+    //     hexFunction.drawHex(x, y);
+    //     ctx.clip();
+    //
+    //     const terrainImg = assets.terrains[terrain];
+    //     if (terrainImg) {
+    //         ctx.drawImage(terrainImg, x, y, sizes.width, sizes.height*angleY);
+    //
+    //     } else {
+    //         ctx.fillStyle = hexFunction.getTerrainColor(terrain);
+    //         ctx.fill();
+    //     }
+    //     ctx.restore();
+    // },
+
+    drawTerrain(x, y, terrain) {
+        const {ctx, sizes, camera:{zoom, angleY}} = hexFunction.data;
+        const terrainImg = assets.terrains[terrain];
+
         ctx.save();
 
-        // TODO light
-        // const brightness = cell.light || 1;
-        // ctx.filter = `brightness(${brightness})`;
+        // 1. Создаем маску (чтобы трава не вылезала за края гекса)
+        hexFunction.drawHex(x, y);
+        ctx.clip();
 
-        // Рисуем "тело" гекса с учетом высоты (сдвиг вверх)
-        const hShift = ((cell.height || 1) - 1) * 10;
-        const drawY = y - hShift;
+        if (terrainImg) {
+            // 2. Считаем актуальные размеры с учетом зума и сжатия angleY
+            const w = sizes.width * zoom;
+            const h = sizes.height * zoom * angleY;
 
-        if (hShift > 0) {
-            ctx.fillStyle = "rgba(0,0,0,0.3)";
-            hexFunction.drawHex(ctx, x, y, size);
+            // 3. Рисуем картинку, центрируя её (вычитаем половину размера из центра x, y)
+            ctx.drawImage(
+                terrainImg,
+                x - w / 2,
+                y - h / 2,
+                w,
+                h
+            );
+
+        } else {
+            // Фоллбек, если картинка не загрузилась
+            ctx.fillStyle = hexFunction.getTerrainColor(terrain);
             ctx.fill();
         }
 
-        hexFunction.drawHex(ctx, x, drawY, size);
-        ctx.fillStyle = hexFunction.getTerrainColor(cell.terrain);
-        ctx.fill();
-        ctx.strokeStyle = "rgba(255,255,255,0.2)";
-        ctx.stroke();
         ctx.restore();
     },
 
-    drawFog(ctx, x, y, size) {
-        ctx.save();
-        hexFunction.drawHex(ctx, x, y, size);
-        ctx.fillStyle = "rgba(0, 0, 0, 1)";
-        ctx.fill();
-        ctx.restore();
+
+    drawFog(x, y, q, r) {
+        const {ctx, gridData, activeUnit, sizes} = hexFunction.data;
+
+        const isExplored = currentSeason.exploredCells[activeUnit.id] && currentSeason.exploredCells[activeUnit.id][`${q}_${r}`];
+        const dist = hexFunction.getHexDistance(activeUnit.q, activeUnit.r, q, r);
+        let inActiveVision = (dist <= (activeUnit.visionRadius || 2)) && hexFunction.canSee(q, r);
+
+        if (inActiveVision) {
+
+        } else if (isExplored) {
+            hexFunction.drawHexHighlight(x, y, "rgba(0,0,0,0.5)");
+        } else {
+            hexFunction.drawHexHighlight(x, y, "rgba(0,0,0,1)");
+        }
+        return {
+            isExplored
+        }
     },
 
-    drawExplored(ctx, x, y, size) {
+    drawExplored(x, y) {
+        const {ctx} = hexFunction.data;
         ctx.save();
-        hexFunction.drawHex(ctx, x, y, size);
+        hexFunction.drawHex(x, y);
         ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
         ctx.fill();
         ctx.restore();
     },
 
-    drawHexHighlight(ctx, x, y, color, size, lineWidth = 0) {
+    drawHexHighlight(x, y, color, lineWidth = 0) {
+        const {ctx} = hexFunction.data;
         ctx.save();
-        ctx.beginPath(); // ВАЖНО: Начинаем новый путь специально для этого гекса
-        for (let i = 0; i < 6; i++) {
-            const angle = (Math.PI / 180) * (60 * i - 30);
-            const px = x + size * Math.cos(angle);
-            const py = y + size * Math.sin(angle);
-            if (i === 0) ctx.moveTo(px, py);
-            else ctx.lineTo(px, py);
-        }
-        ctx.closePath();
-
+        hexFunction.drawHex(x, y);
         ctx.fillStyle = color;
         ctx.fill();
-
         if (lineWidth > 0) {
-            ctx.strokeStyle = "white";
+            ctx.strokeStyle = "#FFFFFF";
             ctx.lineWidth = lineWidth;
-            ctx.stroke(); // Теперь обведет весь гекс целиком
+            ctx.stroke();
         }
         ctx.restore();
     },
 
-    drawContent(ctx, x, y, content, q, r, size) {
+    drawRegionBorders(q, r, regionId) {
+        const {ctx, gridData, sizes:{cellSize}, camera:{zoom, angleY}} = hexFunction.data;
+        const center = hexFunction.hexToPixel(q, r);
+
+        // 6 направлений соседей для Pointy Topped гекса
+        const neighbors = [
+            {dq: 1, dr: 0},  {dq: 0, dr: 1},  {dq: -1, dr: 1},
+            {dq: -1, dr: 0}, {dq: 0, dr: -1}, {dq: 1, dr: -1}
+        ];
+
         ctx.save();
+        ctx.strokeStyle = "#FFFFFF"; // Белая внешняя граница
+        ctx.lineWidth = 2;           // Сделаем жирнее для наглядности
+        ctx.lineCap = "round";
+
+        neighbors.forEach((dir, i) => {
+            const nKey = `${q + dir.dq}_${r + dir.dr}`;
+            const neighbor = gridData[nKey];
+            const neighborRegion = neighbor ? neighbor.region : -1;
+
+            // ВАЖНО: Рисуем грань, только если ID регионов РАЗНЫЕ
+            // Это создаст общую внешнюю контурную линию для всей группы гексов
+            if (neighborRegion !== regionId) {
+                // Углы гекса для каждой грани (i и i+1)
+                const angle1 = (Math.PI / 180) * (60 * i - 30);
+                const angle2 = (Math.PI / 180) * (60 * (i + 1) - 30);
+
+                ctx.beginPath();
+                ctx.moveTo(center.x + cellSize * zoom * Math.cos(angle1), center.y + cellSize * zoom * Math.sin(angle1)*angleY);
+                ctx.lineTo(center.x + cellSize * zoom * Math.cos(angle2), center.y + cellSize * zoom * Math.sin(angle2)*angleY);
+                ctx.stroke();
+            }
+        });
+        ctx.restore();
+    },
+
+    drawProvinceBorders(q, r, provinceId) {
+        const {ctx, gridData, sizes:{cellSize}, camera:{zoom, angleY}} = hexFunction.data;
+        const center = hexFunction.hexToPixel(q, r);
+
+        // 6 направлений соседей для Pointy Topped гекса
+        const neighbors = [
+            {dq: 1, dr: 0},  {dq: 0, dr: 1},  {dq: -1, dr: 1},
+            {dq: -1, dr: 0}, {dq: 0, dr: -1}, {dq: 1, dr: -1}
+        ];
+
+        ctx.save();
+        ctx.strokeStyle = "#ffff00"; // Белая внешняя граница
+        ctx.lineWidth = 1;           // Сделаем жирнее для наглядности
+        ctx.lineCap = "round";
+
+        neighbors.forEach((dir, i) => {
+            const nKey = `${q + dir.dq}_${r + dir.dr}`;
+            const neighbor = gridData[nKey];
+            const neighborRegion = neighbor ? neighbor.provinceId : -1;
+
+            // ВАЖНО: Рисуем грань, только если ID регионов РАЗНЫЕ
+            // Это создаст общую внешнюю контурную линию для всей группы гексов
+            if (neighborRegion !== provinceId) {
+                // Углы гекса для каждой грани (i и i+1)
+                const angle1 = (Math.PI / 180) * (60 * i - 30);
+                const angle2 = (Math.PI / 180) * (60 * (i + 1) - 30);
+
+                ctx.beginPath();
+                ctx.moveTo(center.x + cellSize * zoom * Math.cos(angle1), center.y + cellSize * zoom * Math.sin(angle1)*angleY);
+                ctx.lineTo(center.x + cellSize * zoom * Math.cos(angle2), center.y + cellSize * zoom * Math.sin(angle2)*angleY);
+                ctx.stroke();
+            }
+        });
+        ctx.restore();
+    },
+
+    drawFactionBorders(q, r, factionId) {
+        const {ctx, gridData, sizes:{cellSize}, camera:{zoom, angleY}} = hexFunction.data;
+        const center = hexFunction.hexToPixel(q, r);
+        const faction = data.factions.find(f => f.id === factionId);
+        const size = cellSize * zoom - 1;
+
+        // 6 направлений соседей для Pointy Topped гекса
+        const neighbors = [
+            {dq: 1, dr: 0},  {dq: 0, dr: 1},  {dq: -1, dr: 1},
+            {dq: -1, dr: 0}, {dq: 0, dr: -1}, {dq: 1, dr: -1}
+        ];
+
+        ctx.save();
+        ctx.strokeStyle = faction.color; // Белая внешняя граница
+        ctx.lineWidth = 2;           // Сделаем жирнее для наглядности
+        ctx.lineCap = "round";
+
+        neighbors.forEach((dir, i) => {
+            const nKey = `${q + dir.dq}_${r + dir.dr}`;
+            const neighbor = gridData[nKey];
+            let faction = -1;
+            if(neighbor && neighbor.provinceHex) {
+                faction = gridData[neighbor.provinceHex].faction;
+            }
+            // const neighborRegion = neighbor ? neighbor.faction : -1;
+
+            if (faction !== factionId) {
+                // Углы гекса для каждой грани (i и i+1)
+                const angle1 = (Math.PI / 180) * (60 * i - 30);
+                const angle2 = (Math.PI / 180) * (60 * (i + 1) - 30);
+
+                ctx.beginPath();
+                ctx.moveTo(center.x + cellSize * zoom * Math.cos(angle1), center.y + cellSize * zoom * Math.sin(angle1)*angleY);
+                ctx.lineTo(center.x + cellSize * zoom * Math.cos(angle2), center.y + cellSize * zoom * Math.sin(angle2)*angleY);
+                ctx.stroke();
+            }
+        });
+        ctx.restore();
+    },
+
+    drawContent(x, y, cellData, q, r) {
+        const {ctx, show, sizes, camera:{zoom, angleY}} = hexFunction.data;
+        // ctx.save();
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
-        if (content.type === 'char') {
-            hexFunction.drawUnit(ctx, x, y, content, q, r, size); // Твоя текущая функция для персонажей
+
+        // let icon2;
+        // if (cellData.isCapital) icon2 = "⭐";
+        // // else if (cellData.isPort) icon = "⚓";
+        // // else if (cellData.isTradeHub) icon = "⚖️";
+        // else if (cellData.isFort) icon2 = "🏰";
+        // // else if (cellData.isCity) icon = "🏘";
+        // if(icon2) {
+        //     ctx.font = "30px serif";
+        //     ctx.fillText(icon2,  x - 15,  y + 10.5);
+        // }
+
+        if(!cellData.content) return;
+
+        if(show.objects && cellData.content.obj) {
+            hexFunction.drawObject(x, y, cellData.content.obj, q, r);
         }
-        else if (content.type === 'obj') {
-            hexFunction.drawObject(ctx, x, y, content, q, r, size);
+
+        let icon;
+        if (cellData.isCapital) icon = "city";
+        else if (cellData.isPort) icon = "port";
+        else if (cellData.isTradeHub) icon = "city";
+        else if (cellData.isFort) icon = "castle";
+        else if (cellData.isCity) icon = "city";
+        if(icon) {
+            const terrainImg = assets.objects[icon];
+            if (terrainImg) {
+                ctx.save();
+                ctx.beginPath();
+                hexFunction.drawHex(x, y, true);
+                ctx.drawImage(terrainImg, x - sizes.width * zoom/2, y - sizes.height * zoom/2*angleY, sizes.width * zoom, sizes.height * zoom*angleY);
+                ctx.restore();
+            }
         }
+
+        if(show.characters && cellData.content.unit) {
+            hexFunction.drawUnit(x, y, characterManager.getCharacterById(cellData.content.unit), q, r);
+        }
+        //
+        // if (content.obj) {
+        //     hexFunction.drawObject(ctx, x, y, content.obj, q, r, size);
+        // }
+        // if (content.unit) {
+        //     hexFunction.drawUnit(ctx, x, y, characterManager.getCharacterById(content.unit), q, r, size); // Твоя текущая функция для персонажей
+        // }
     },
 
-    drawUnit(ctx, x, y, unit, q, r, size) {
+    drawUnit(x, y, unit, q, r) {
+        const {ctx, sizes:{charSize}, camera:{zoom}} = hexFunction.data;
+
         if (map.animatingUnit && map.animatingUnit.q === q && map.animatingUnit.r === r) return;
         if (tacticalMap.animatingUnit && tacticalMap.animatingUnit.q === q && tacticalMap.animatingUnit.r === r) return;
 
         ctx.save();
         // 1. Рисуем подложку (командный круг), чтобы юнит не сливался с фоном
+        // ctx.beginPath();
+        // ctx.arc(x, y, size * 0.6, 0, Math.PI * 2);
         ctx.beginPath();
-        ctx.arc(x, y, size * 0.6, 0, Math.PI * 2);
+        // Рисуем эллипс: ширина полная, высота сплющена (например, 0.4 от ширины)
+        // x, y — центр гекса, где стоят ноги
+        ctx.ellipse(x, y, charSize * zoom * 0.5, charSize * zoom * 0.25, 0, 0, Math.PI * 2);
 
+        ctx.fillStyle = "rgba(0, 0, 0, 0.4)"; // Полупрозрачный черный
+        ctx.fill();
+        ctx.restore();
+
+        ctx.lineWidth = 2;
         if(unit.team) {
-            ctx.fillStyle = tacticalMap.teamColors[unit.team];
-            ctx.fill();
+            ctx.strokeStyle = map.teamColors[unit.team];
+            ctx.stroke();
+        }
+        else {
+            ctx.strokeStyle = "#FFFFFF";
+            ctx.stroke();
         }
 
-        ctx.strokeStyle = "white";
-        ctx.lineWidth = 2;
-        ctx.stroke();
 
         // 2. ОТРИСОВКА ПОРТРЕТА
         // Проверяем наличие загруженного изображения
-        if(avatars[unit.id]) {
-            if(assets.loadedAvatars[unit.id]) {
-                const img = assets.loadedAvatars[unit.id];
-                // --- РАСЧЕТ ПРОПОРЦИЙ ---
-                const maxSize = size * 1.2; // Максимальный размер внутри гекса
-                const ratio = Math.min(maxSize / img.width, maxSize / img.height);
-                const newWidth = img.width * ratio;
-                const newHeight = img.height * ratio;
-
-                ctx.save();
-                // Обрезаем по кругу подложки
-                ctx.beginPath();
-                ctx.arc(x, y, size * 0.65, 0, Math.PI * 2);
-                ctx.clip();
-
-                // Рисуем картинку ровно по центру
-                ctx.drawImage(
-                    img,
-                    x - newWidth / 2,
-                    y - newHeight / 2,
-                    newWidth,
-                    newHeight
-                );
-                ctx.restore();
-            }
-            else {
-                const img = new Image();
-                img.src = avatars[unit.id]; // Твоя строка base64
-                img.onload = () => {
-                    assets.loadedAvatars[unit.id] = img;
-                    hexFunction.drawUnit(ctx, x, y, unit, q, r, size);
-                };
-                return;
-            }
+        let image;
+        if(fullheight[unit.id] && assets.loadedFullHeight[unit.id]) {
+            image = assets.loadedFullHeight[unit.id];
         }
-        else {
-            ctx.save();
-            ctx.font = `${tacticalHexGrid.size}px Arial`;
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillStyle = "white";
-            ctx.fillText(unit.symbol || '👤', x, y);
-            ctx.restore();
+        else if(avatars[unit.id] && assets.loadedAvatars[unit.id]) {
+            image = assets.loadedAvatars[unit.id];
         }
+        if(!image) return;
+
+        const coef = 0.8;
+        const maxSize = charSize * coef * zoom; // Максимальный размер внутри гекса
+        const ratio = Math.min(maxSize / image.width, maxSize / image.height) * zoom;
+        const newWidth = image.width * ratio * coef;
+        const newHeight = image.height * ratio * coef;
+
+        ctx.save();
+        // Обрезаем по кругу подложки
+        ctx.beginPath();
+        ctx.arc(x, y, charSize * coef, 0, Math.PI * 2);
+        // ctx.clip();
+
+        // Рисуем картинку ровно по центру
+        ctx.drawImage(
+            image,
+            x - newWidth / 2,
+            y - newHeight,
+            newWidth,
+            newHeight
+        );
+        ctx.restore();
 
         // 3. Полоска HP чуть ниже центра
-        const barW = size;
+        const barW = newWidth;
         const barH = 4;
-        const barY = y + (size * 0.5);
+        const barY = y - (newHeight * 1);
+        const nameY = y - (newHeight * 1.10);
 
         ctx.fillStyle = "red";
         ctx.fillRect(x - barW/2, barY, barW, barH);
         ctx.fillStyle = "#00ff00";
-        const hpPercent = (unit.hpCurrent || unit.hp) / unit.hp;
+        // const hpPercent = (unit.hp || unit.hpMax) / unit.hpMax;
+        const hpPercent = unit.hp / unit.hpMax;
         ctx.fillRect(x - barW/2, barY, barW * hpPercent, barH);
+
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.fillStyle = "cyan";
+
+        // const fontSize = Math.max(10, 18 / zoom);
+        const fontSize = 10 + (zoom-1)*10;
+        ctx.font = `bold ${fontSize}px serif`;
+        const name = (unit.name.split(" "))[0];
+        ctx.strokeText(name || unit.id, x, nameY);
+        ctx.fillText(name || unit.id, x, nameY);
 
         ctx.restore();
     },
 
-    drawObject(ctx, x, y, content, q, r, size) {
-        ctx.save(); // Сохраняем состояние, чтобы не испортить другие рисунки
+    drawObject(x, y, content, q, r) {
+        if(!content) return;
+        const {ctx, sizes, camera:{zoom, angleY}} = hexFunction.data;
+        ctx.save();
 
-        // Отрисовка объектов: Порталы, Трупы, Сундуки
-        ctx.font = "30px Arial";
         let icon = '❓';
-        icon = tacticalMap.objectIcons[content.obj];
-        // if (content.obj === 'portal') icon = '🌀';
-        // else if (content.obj === 'corpse') icon = '💀';
-        // else if (content.obj === 'chest') icon = '📦';
-        // else if (content.obj === 'tree') icon = '🌳';
-        // else if (content.obj === 'rock') icon = '🪨';
-        // else if (content.obj === 'mountain') icon = '⛰';
-        // else if (content.obj === 'water') icon = '💧';
-        // else if (content.obj === 'pit') icon = '🕳';
-        // else if (content.obj === 'door') icon = '🚪';
-        // else if (content.obj === 'wall') icon = '🧱';
-        // else if (content.obj === 'town_hall') icon = '🏛';
-        // else if (content.obj === 'house') icon = '🏠';
-        // else if (content.obj === 'temple') icon = '⛪';
-        // else if (content.obj === 'well') icon = '⛲';
-        // else if (content.obj === 'lamp') icon = '🏮';
+        if(content.obj && assets.objects[content.obj]) {
+            const terrainImg = assets.objects[content.obj];
+            if (terrainImg) {
+                ctx.beginPath();
+                hexFunction.drawHex(x, y, true);
+                ctx.clip();
+                ctx.drawImage(terrainImg, x - sizes.width * zoom/2, y - sizes.height * zoom/2*angleY, sizes.width * zoom, sizes.height * zoom*angleY);
+                // ctx.drawImage(terrainImg, x - sizes.width / 2, drawY - sizes.height / 2, sizes.width, sizes.height);
+                // ctx.drawImage(terrainImg, x - sizes.width * zoom/2, y - sizes.height * zoom/2, sizes.width * zoom, sizes.height * zoom * angleY);
+            }
+        }
+        else {
+            ctx.font = "30px Arial";
+            icon = map.objectIcons[content.obj];
+            // if (content.obj === 'portal') icon = '🌀';
+            // else if (content.obj === 'corpse') icon = '💀';
+            // else if (content.obj === 'chest') icon = '📦';
+            // else if (content.obj === 'tree') icon = '🌳';
+            // else if (content.obj === 'rock') icon = '🪨';
+            // else if (content.obj === 'mountain') icon = '⛰';
+            // else if (content.obj === 'water') icon = '💧';
+            // else if (content.obj === 'pit') icon = '🕳';
+            // else if (content.obj === 'door') icon = '🚪';
+            // else if (content.obj === 'wall') icon = '🧱';
+            // else if (content.obj === 'town_hall') icon = '🏛';
+            // else if (content.obj === 'house') icon = '🏠';
+            // else if (content.obj === 'temple') icon = '⛪';
+            // else if (content.obj === 'well') icon = '⛲';
+            // else if (content.obj === 'lamp') icon = '🏮';
 
-        ctx.fillText(icon, x, y);
+            ctx.fillText(icon, x, y);
+        }
 
         // Если это портал, можно добавить свечение
         if (content.obj === 'portal') {
@@ -277,8 +534,12 @@ const hexFunction = {
         ctx.restore();
     },
 
-    drawCells(ctx, grid, active, sizes, show) {
-        const factionCells = {}, terrainCells = {};
+    drawCells(config = {}) {
+        const {play} = config;
+        const {ctx, gridData, activeUnit, show, sizes, camera:{zoom, angleY}} = hexFunction.data;
+        const active = activeUnit;
+        const grid = gridData;
+        const factionCells = {}, regionCells = {}, religionCells = {}, cultureCells = {};
 
         const sortedCells = Object.entries(grid).sort((a, b) => {
             const rA = parseInt(a[0].split('_')[1]);
@@ -287,48 +548,31 @@ const hexFunction = {
             return parseInt(a[0].split('_')[0]) - parseInt(b[0].split('_')[0]);
         });
 
+        const interactionLines = document.querySelectorAll('.interaction-line');
+        interactionLines.forEach(element => {element.remove();});
+
         for (const [key, cellData] of sortedCells) {
             const [q, r] = key.split('_').map(Number);
-            let { x, y } = hexFunction.hexToPixel(q, r, sizes.size/(sizes.zoom||1));
+            let { x, y } = hexFunction.hexToPixel(q, r);
+
+            if(!cellData.content) cellData.content = {};
 
             if(sizes.bounds) {
-                x = (x - sizes.bounds.x) * sizes.zoom;
-                y = (y - sizes.bounds.y) * sizes.zoom;
+                x = (x - sizes.bounds.x);
+                y = (y - sizes.bounds.y);
             }
 
-            if(show.fog && active) {
-
-                if (hexFunction.canSee(grid, active, q, r)) {
-                    // Рисуем обычный гекс (активная видимость)
-                } else if (cellData.explored) {
-                    hexFunction.drawExplored(ctx, x, y, sizes.size);
-                } else {
-                    hexFunction.drawFog(ctx, x, y, sizes.size);
-                }
-
-                if(!cellData.explored) {
-                    hexFunction.drawHexHighlight(ctx, x, y, "rgba(0,0,0,1)", sizes.size);
-                }
-                else if(cellData.explored && !hexFunction.canSee(grid, active, q, r)) {
-                    cellData.inVision = false;
-                    hexFunction.drawHexHighlight(ctx, x, y, "rgba(0,0,0,0.5)", sizes.size);
-                }
-                else {
-                    cellData.inVision = true;
-                }
+            if (cellData.isFog) {
+                hexFunction.drawHexHighlight(x, y, "rgba(0,0,0,1)");
+                continue;
             }
 
-            if (active && cellData.explored) {
-                if (active.q === q && active.r === r) {
-                    hexFunction.drawHexHighlight(ctx, x, y, "rgba(255, 255, 255, 0.4)", sizes.size, 3); // Выделение
-                }
-                else if (!active.hasMoved && hexFunction.canReach(grid, active, q, r)) {
-                    hexFunction.drawHexHighlight(ctx, x, y, "rgba(0, 255, 0, 0.3)", sizes.size); // Ход
-                }
-                else if (tacticalMap.canAttack(q, r)) {
-                    hexFunction.drawHexHighlight(ctx, x, y, "rgba(255, 0, 0, 0.3)", sizes.size); // Атака
-                }
+            let isExplored = true;
+            if(activeUnit) {
+                isExplored = currentSeason.exploredCells[activeUnit.id] && currentSeason.exploredCells[activeUnit.id][`${q}_${r}`];
+                hexFunction.drawFog(x,y,q,r);
             }
+            if(!isExplored) continue;
 
             const hShift = ((cellData.height || 1) - 1) * 5;
             const drawY = (y - hShift);
@@ -337,20 +581,30 @@ const hexFunction = {
             if (hShift > 0) {
                 if(show.terrain) {
                     ctx.save(); // Сохраняем состояние для clip
-                    hexFunction.drawHex(ctx, x, y + 1, sizes.size);
+                    hexFunction.drawHex(x, y + 1);
                     ctx.clip();
                     ctx.fillStyle = "rgba(0,0,0,0.3)";
                     ctx.fill();
 
                     const terrainImg = assets.terrains[cellData.terrain];
                     if (terrainImg) {
-                        ctx.drawImage(terrainImg, x - sizes.width / 2, y - sizes.height / 2, sizes.width, sizes.height);
+                        // ctx.drawImage(terrainImg, x - sizes.width / 2, y - sizes.height / 2, sizes.width, sizes.height);
+                        // ctx.drawImage(terrainImg, x - sizes.width/2 - 10, y - sizes.height/2, sizes.width + 20, sizes.height);
+                        const w = sizes.width * zoom;
+                        const h = sizes.height * zoom * angleY;
+                        ctx.drawImage(
+                            terrainImg,
+                            x - w / 2,
+                            y - h / 2,
+                            w,
+                            h
+                        );
                     } else {
                         ctx.fillStyle = hexFunction.getTerrainColor(cellData.terrain);
                         ctx.fill();
                     }
 
-                    hexFunction.drawHex(ctx, x, y, sizes.size);
+                    hexFunction.drawHex(x, y);
                     ctx.fillStyle = "rgba(0,0,0,0.5)";
                     ctx.fill();
                     ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
@@ -360,136 +614,325 @@ const hexFunction = {
                 }
             }
 
+            // 3. РИСУЕМ ТЕРРЕЙН (PNG или Цвет)
             if(show.terrain) {
-                // 3. РИСУЕМ ТЕРРЕЙН (PNG или Цвет)
-                ctx.save(); // Сохраняем состояние для clip
-                ctx.beginPath();
-                hexFunction.drawHex(ctx, x, drawY, sizes.size);
-                ctx.clip();
-
-                const terrainImg = assets.terrains[cellData.terrain];
-                if (terrainImg) {
-                    ctx.drawImage(terrainImg, x - sizes.width / 2, drawY - sizes.height / 2, sizes.width, sizes.height);
-                } else {
-                    ctx.fillStyle = hexFunction.getTerrainColor(cellData.terrain);
-                    ctx.fill();
-                }
-                ctx.restore(); // Убираем clip
+                hexFunction.drawTerrain(x, drawY, cellData.terrain);
             }
+        }
+
+        if(show.tradeRoutes) {
+            tradeManager.renderTradePaths();
+        }
+
+        for (const [key, cellData] of sortedCells) {
+            const [q, r] = key.split('_').map(Number);
+            let { x, y } = hexFunction.hexToPixel(q, r);
+
+            if(!cellData.content) cellData.content = {};
+
+            if(sizes.bounds) {
+                x = (x - sizes.bounds.x);
+                y = (y - sizes.bounds.y);
+            }
+
+            if (cellData.isFog) {
+                hexFunction.drawHexHighlight(x, y, "rgba(0,0,0,1)");
+                continue;
+            }
+
+            let isExplored = true;
+            if(activeUnit) {
+                isExplored = currentSeason.exploredCells[activeUnit.id] && currentSeason.exploredCells[activeUnit.id][`${q}_${r}`];
+                // hexFunction.drawFog(x,y,q,r);
+            }
+            if(!isExplored) continue;
+
+            const hShift = ((cellData.height || 1) - 1) * 5;
+            const drawY = (y - hShift);
 
             // 4. РИСУЕМ СЕТКУ (поверх террейна)
-            ctx.beginPath();
-            hexFunction.drawHex(ctx, x, drawY, sizes.size);
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
-            ctx.stroke();
-
-            if (cellData.region && cellData.region !== -1) {
-                globalMap.drawRegionBorders(ctx, q, r, cellData.region);
+            if(show.grid) {
+                hexFunction.drawGrid(x, drawY);
             }
 
-            // 5. РИСУЕМ ИКОНКУ (SVG)
-            if (cellData.content) {
-                if(cellData.content.type === 'char') {
-                    hexFunction.drawUnit(ctx, x, y, cellData.content, q, r, sizes.mapCharSize);
+            let provinceData;
+            if(cellData.isCity) {
+                provinceData = cellData;
+            }
+            else if(cellData.provinceHex) {
+                provinceData = gridData[cellData.provinceHex];
+                delete cellData.faction;
+            }
+            delete cellData.inVision;
+
+            if(show.regions) {
+                if (cellData.provinceId && cellData.provinceId !== -1) {
+                    hexFunction.drawProvinceBorders(q, r, cellData.provinceId);
                 }
-                else {
-                    const iconImg = assets.mapIcons[cellData.content];
-                    if (iconImg) {
-                        const iconSize = sizes.size * 0.6; // Иконка чуть меньше гекса
-                        ctx.drawImage(iconImg, x - iconSize / 2, drawY - iconSize / 2, iconSize, iconSize);
+
+                if (cellData.region && cellData.region !== -1) {
+                    // if (!factionCells[cellData.region]) factionCells[cellData.region] = [];
+                    // factionCells[cellData.region].push({x, y});
+
+                    ctx.globalAlpha = 0.25;
+                    const region = (data.regions || []).find(f => f.id === cellData.region);
+                    ctx.fillStyle = region?.color || 'rgba(255,255,255,0)';
+                    ctx.beginPath();
+                    hexFunction.drawHex(x, drawY, true);
+                    ctx.fill();
+                    ctx.globalAlpha = 1.0;
+
+                    hexFunction.drawRegionBorders(q, r, cellData.region);
+                }
+            }
+
+            if(provinceData) {
+                if(show.factions) {
+                    if (provinceData.faction && provinceData.faction !== -1) {
+                        // if (!factionCells[provinceData.faction]) factionCells[provinceData.faction] = [];
+                        // factionCells[provinceData.faction].push({x, y});
+
+                        ctx.globalAlpha = 0.25;
+                        const faction = data.factions.find(f => f.id === provinceData.faction);
+                        ctx.fillStyle = faction?.color || 'rgba(255,255,255,0)';
+                        ctx.beginPath();
+                        hexFunction.drawHex(x, drawY, true);
+                        ctx.fill();
+                        ctx.globalAlpha = 1.0;
+
+                        hexFunction.drawFactionBorders(q, r, provinceData.faction);
+                    }
+                }
+                if(provinceData.social && provinceData.social.dominance) {
+                    const dom = provinceData.social.dominance;
+                    if (show.religions) {
+                        if (dom.religion) {
+                            // if (!religionCells[dom.religion]) religionCells[dom.religion] = [];
+                            // religionCells[dom.religion].push({x, y});
+
+                            ctx.globalAlpha = 0.25;
+                            const religion = (gameData[currentGame].religions||[]).find(f => f.id === dom.religion);
+                            ctx.fillStyle = religion?.color || 'rgba(255,255,255,0)';
+                            ctx.beginPath();
+                            hexFunction.drawHex(x, drawY, true);
+                            ctx.fill();
+                            ctx.globalAlpha = 1.0;
+                        }
+                    }
+                    if (show.cultures) {
+                        if (dom.culture) {
+                            // if (!cultureCells[dom.culture]) cultureCells[dom.culture] = [];
+                            // cultureCells[dom.culture].push({x, y});
+
+                            ctx.globalAlpha = 0.25;
+                            const culture = (gameData[currentGame].cultures||[]).find(f => f.id === dom.culture);
+                            ctx.fillStyle = culture?.color || 'rgba(255,255,255,0)';
+                            ctx.beginPath();
+                            hexFunction.drawHex(x, drawY, true);
+                            ctx.fill();
+                            ctx.globalAlpha = 1.0;
+                        }
                     }
                 }
             }
 
-            // if(active && hexFunction.getHexDistance(q, r, active.q, active.r) <= active.visionRadius) {
-            //     // 4. Юниты (не рисуем, если юнит в процессе анимации перемещения)
-            //     if (cell.content) {
-            //         const isTargetOfAnim = tacticalRender.animatingUnit?.q === q && tacticalRender.animatingUnit?.r === r;
-            //         // Если это активный юнит и он сейчас анимируется — скрываем его
-            //         const isActiveMoving = (active && active.q === q && active.r === r && tacticalRender.animatingUnit);
-            //
-            //         if (!isTargetOfAnim && !isActiveMoving) {
-            //             this.drawContent(x, y, cell.content, q, r);
-            //         }
-            //     }
-            // }
-
-            const selectedAb = tacticalMap.selectedAbility || map.selectedAbility;
-            if (active && selectedAb) {
-                const distFromCaster = hexFunction.getHexDistance(q, r, active.q, active.r);
-
-                // ЭТАП 1: Подсветка дистанции (ЖЕЛТЫЙ)
-                // Показываем все гексы, куда маг может "дострелить"
-                if (distFromCaster <= selectedAb.range) {
-                    hexFunction.drawHexHighlight(ctx, x, y, "rgba(255, 255, 0, 0.2)", sizes.size);
-                }
-
-                // ЭТАП 2: Подсветка цели и AoE (КРАСНЫЙ)
-                // Если игрок уже навел курсор или тапнул по конкретной точке
-                if (tacticalMap.abilityTarget) {
-                    const aoeCells = hexFunction.getAoeCells(
-                        tacticalMap.gridData,
-                        tacticalMap.activeUnit,
-                        tacticalMap.abilityTarget.q,
-                        tacticalMap.abilityTarget.r,
-                        selectedAb
-                    );
-
-                    // Если текущий гекс (q, r) входит в зону поражения выбранной цели
-                    if (aoeCells.some(c => c.q === q && c.r === r)) {
-                        hexFunction.drawHexHighlight(ctx, x, y, "rgba(255, 0, 0, 0.5)", sizes.size, 2); // Яркий красный с обводкой
-                    }
-                }
+            if(tacticalMap.entryCell === key) {
+                hexFunction.drawHexHighlight(x, y, "rgba(0, 0, 255, 0.3)"); // вход
             }
-
-
 
             if(show.yeilds) {
                 if (cellData.yield && Object.keys(cellData.yield).length > 0) {
                     ctx.font = "12px Arial";
-                    ctx.fillStyle = "white";
+                    ctx.fillStyle = "#FFFFFF";
                     const firstResId = Object.keys(cellData.yield)[0];
-                    const resIcon = data.resources.find(r => r.id === firstResId)?.icon || '💎';
+                    const resIcon = map.resources.find(r => r.id === firstResId)?.icon || '💎';
                     ctx.fillText(resIcon, x - 10, y + 15);
                 }
             }
 
-            if(show.factions) {
-                if (cellData.owner && cellData.owner !== -1) {
-                    if (!factionCells[cellData.owner]) factionCells[cellData.owner] = [];
-                    factionCells[cellData.owner].push({x, y});
+            if (cellData.isCity && cellData.cityName) {
+                const fontSize = 18 * angleY * zoom;
+                ctx.font = `bold ${fontSize}px serif`;
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 4;
+                ctx.fillStyle = "#FFFFFF";
+                if (cellData.isCapital) ctx.fillStyle = "gold";
+
+                const labelY = y - (35 * zoom);
+                let cityName = provinceNames[cellData.cityId] ? provinceNames[cellData.cityId][lang] : cellData.cityId;
+
+                ctx.strokeText(cityName || cellData.cityId, x, labelY);
+                ctx.fillText(cityName || cellData.cityId, x, labelY);
+            }
+
+            if(active) {
+
+                if(currentSeason.exploredCells[active.id][key]) {
+                    if(cellData.content.unit) {
+                        console.log(key, cellData, hexFunction.canReach(q, r), hexFunction.isInteractable(cellData));
+                    }
+                // if (cellData.explored) {
+                    if (active.q === q && active.r === r) {
+                        hexFunction.drawHexHighlight(x, y, "rgba(255, 255, 255, 0.4)", 3); // Выделение
+                    }
+                    else if((hexFunction.getHexDistance(q, r, active.q,active.r) <= 1) && hexFunction.isInteractable(cellData)) {
+                        hexFunction.drawHexHighlight(x, y, "rgba(255, 255, 0, 0.5)"); // интеракция
+                        if(cellData.content.unit) {
+                            map.createFloatingBtn({x, y:drawY}, 'dialog', cellData.content.unit);
+                        }
+                    }
+                    else if (hexFunction.canReach(q, r)) { //!active.hasMoved &&
+                        hexFunction.drawHexHighlight(x, y, "rgba(0, 255, 0, 0.3)"); // Ход
+                    }
+                    else if (battleManager.canAttack(q, r)) {
+                        hexFunction.drawHexHighlight(x, y, "rgba(255, 0, 0, 0.3)"); // Атака
+                    }
                 }
+
+                // hexFunction.drawFog(x,y,q,r);
+
+                const selectedAb = tacticalMap.selectedAbility || map.selectedAbility;
+                if (selectedAb) {
+                    const distFromCaster = hexFunction.getHexDistance(q, r, active.q, active.r);
+                    if (distFromCaster <= selectedAb.range) {
+                        hexFunction.drawHexHighlight(x, y, "rgba(255, 255, 0, 0.2)");
+                    }
+
+                    if (tacticalMap.abilityTarget) {
+                        const aoeCells = hexFunction.getAoeCells(
+                            tacticalMap.gridData,
+                            tacticalMap.activeUnit,
+                            tacticalMap.abilityTarget.q,
+                            tacticalMap.abilityTarget.r,
+                            selectedAb
+                        );
+
+                        if (aoeCells.some(c => c.q === q && c.r === r)) {
+                            hexFunction.drawHexHighlight(x, y, "rgba(255, 0, 0, 0.5)", 2); // Яркий красный с обводкой
+                        }
+                    }
+                }
+
+                if(cellData.innerMap && activeUnit.hex && (key === activeUnit.hex)) {
+                    map.createFloatingBtn({x, y:drawY}, 'innerMap', key);
+                }
+
+            }
+
+            hexFunction.drawContent(x, y, cellData, q, r);
+
+            if (show.fog) {
+                hexFunction.drawFog(x,drawY,q,r);
             }
         }
 
-        if(show.factions) {
-            ctx.globalAlpha = 0.25;
-            for (const ownerId in factionCells) {
-                const faction = data.factions.find(f => f.id == ownerId);
-                ctx.fillStyle = faction?.color || '#ff0000';
-                ctx.beginPath();
-                factionCells[ownerId].forEach(pos => {
-                    for (let i = 0; i < 6; i++) {
-                        const angle = (Math.PI / 180) * (60 * i - 30);
-                        const px = pos.x + sizes.size * Math.cos(angle);
-                        const py = pos.y + sizes.size * Math.sin(angle);
-                        if (i === 0) ctx.moveTo(px, py);
-                        else ctx.lineTo(px, py);
-                    }
-                });
-                ctx.fill();
-            }
-            ctx.globalAlpha = 1.0;
-        }
+        // if(show.regions) {
+        //     ctx.globalAlpha = 0.25;
+        //     for (const regionId in regionCells) {
+        //         const region = data.regions.find(f => f.id == regionId);
+        //         ctx.fillStyle = region?.color || 'rgba(255,255,255,0)';
+        //         ctx.beginPath();
+        //         regionCells[regionId].forEach(pos => {
+        //             hexFunction.drawHex(pos.x, pos.y, true);
+        //         });
+        //         ctx.fill();
+        //     }
+        //     ctx.globalAlpha = 1.0;
+        // }
+        //
+        // if(show.factions) {
+        //     ctx.globalAlpha = 0.25;
+        //     for (const factionId in factionCells) {
+        //         const faction = data.factions.find(f => f.id == factionId);
+        //         ctx.fillStyle = faction?.color || 'rgba(255,255,255,0)';
+        //         ctx.beginPath();
+        //         factionCells[factionId].forEach(pos => {
+        //             hexFunction.drawHex(pos.x, pos.y, true);
+        //         });
+        //         ctx.fill();
+        //     }
+        //     ctx.globalAlpha = 1.0;
+        // }
+        // if(show.religions) {
+        //     ctx.globalAlpha = 0.25;
+        //     for (const relId in religionCells) {
+        //         const religion = (gameData[currentGame].religions||[]).find(f => f.id == relId);
+        //         ctx.fillStyle = religion?.color || 'rgba(255,255,255,0)';
+        //         ctx.beginPath();
+        //         religionCells[relId].forEach(pos => {
+        //             hexFunction.drawHex(pos.x, pos.y, true);
+        //         });
+        //         ctx.fill();
+        //     }
+        //     ctx.globalAlpha = 1.0;
+        // }
+        // if(show.cultures) {
+        //     ctx.globalAlpha = 0.25;
+        //     for (const culId in cultureCells) {
+        //         const culture = (gameData[currentGame].cultures||[]).find(f => f.id == culId);
+        //         ctx.fillStyle = culture?.color || 'rgba(255,255,255,0)';
+        //         ctx.beginPath();
+        //         cultureCells[culId].forEach(pos => {
+        //             hexFunction.drawHex(pos.x, pos.y, true);
+        //         });
+        //         ctx.fill();
+        //     }
+        //     ctx.globalAlpha = 1.0;
+        // }
     },
 
-    canReach(grid, active, targetQ, targetR) {
-        // Если мы еще не построили облако путей для текущего хода — строим
-        // if (!this.currentReachable) {
-        //     this.currentReachable = hexFunction.getReachableCells(grid, active);
-        // }
-        map.currentReachable = hexFunction.getReachableCells(grid, active);
-        return map.currentReachable.has(`${targetQ}_${targetR}`);
+    drawLabels() {
+        // 1. Прямая привязка к данным (проверь эти пути!)
+        const {gridData, ctx, sizes:{cellSize}, camera:{zoom}} = hexFunction.data;
+
+        if (!gridData || !ctx) return;
+
+        const regionPoints = {};
+
+        ctx.save();
+        // ОБЯЗАТЕЛЬНО: Сбрасываем фильтры и прозрачность, которые могли остаться от гексов
+        ctx.globalAlpha = 1.0;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        const existingProvinces = {};
+        const missingProvinces = {};
+
+        Object.keys(gridData).forEach(key => {
+            const cell = gridData[key];
+            const [q, r] = key.split('_').map(Number);
+
+            const {x, y} = hexFunction.hexToPixel(q, r);
+
+            // Сбор для регионов
+            if (cell.region && cell.region !== -1) {
+                if (!regionPoints[cell.region]) regionPoints[cell.region] = [];
+                regionPoints[cell.region].push({x, y});
+            }
+        });
+
+        if (zoom < 3) {
+            gameData[currentGame].regions.forEach(reg => {
+                const points = regionPoints[reg.id];
+                if (points && points.length > 0) {
+                    const avgX = points.reduce((s, p) => s + p.x, 0) / points.length;
+                    const avgY = points.reduce((s, p) => s + p.y, 0) / points.length;
+
+                    ctx.shadowBlur = 0;
+                    ctx.font = `bold ${30 * zoom}px serif`;
+                    ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+                    ctx.fillText(reg.name.toUpperCase(), avgX, avgY);
+                }
+            });
+        }
+
+        ctx.restore();
+    },
+
+    canReach(targetQ, targetR) {
+        let {currentReachable} = hexFunction.data;
+        currentReachable = hexFunction.getReachableCells();
+        return currentReachable.has(`${targetQ}_${targetR}`);
     },
 
     findPath(grid, startQ, startR, endQ, endR) {
@@ -502,12 +945,13 @@ const hexFunction = {
 
             if (current.q === endQ && current.r === endR) return path;
 
-            const neighbors = hexFunction.getNeighbors(grid, current.q, current.r);
+            const neighbors = hexFunction.getNeighbors(current.q, current.r);
             for (const n of neighbors) {
                 const key = `${n.q}_${n.r}`;
                 // Проверка проходимости (та же, что в canReach)
-                const canPass = !n.data.content || n.data.content.obj === 'portal';
-                const isLiquid = ['water', 'lava', 'pit'].includes(n.data.terrain);
+                // const canPass = !n.data.content || n.data.content.obj?.type === 'portal';
+                const canPass = !hexFunction.isObstacle(n.data);
+                const isLiquid = map.impassableTerrains.includes(n.data.terrain);
 
                 if (!visited.has(key) && canPass && !isLiquid) {
                     visited.add(key);
@@ -518,79 +962,134 @@ const hexFunction = {
         return null; // Пути нет
     },
 
-    getReachableCells(grid, active) {
-        if (!active) return new Set();
+    getReachableCells() {
+        const {gridData, activeUnit} = hexFunction.data;
+        if (!activeUnit) return new Set();
 
         const reachable = new Set();
-        const fringe = [{ q: active.q, r: active.r, dist: 0 }];
-        reachable.add(`${active.q}_${active.r}`);
+        const fringe = [{ q: activeUnit.q, r: activeUnit.r, dist: 0 }];
+        reachable.add(`${activeUnit.q}_${activeUnit.r}`);
 
         while (fringe.length > 0) {
             const current = fringe.shift();
-            const currentCell = hexFunction.getCell(grid, current.q, current.r);
+            const currentCell = hexFunction.getCell(current.q, current.r);
 
-            if (current.dist < active.currentWalkRange) {
-                const neighbors = hexFunction.getNeighbors(grid, current.q, current.r);
+            if (current.dist < activeUnit.currentWalkRange) {
+                const neighbors = hexFunction.getNeighbors(current.q, current.r);
                 neighbors.forEach(n => {
                     const key = `${n.q}_${n.r}`;
                     if (reachable.has(key)) return;
                     n.data.height = Number((n.data.height || 1));
 
-                    const isObstacle = n.data.content && n.data.content.obj !== 'portal';
-                    const isLiquid = ['water', 'lava', 'pit'].includes(n.data.terrain);
+                    // const isObstacle = n.data.content?.unit && n.data.content?.obj?.type !== 'portal';
+                    const isObstacle = hexFunction.isObstacle(n.data);
+                    const isLiquid = map.impassableTerrains.includes(n.data.terrain);
                     const heightDiff = Math.abs(n.data.height - currentCell.height);
 
-                    if (!isObstacle && !isLiquid && heightDiff <= 0.5) {
+                    if (!isObstacle && !n.data.isFog && !isLiquid && heightDiff <= 0.5) {
                         reachable.add(key);
                         fringe.push({ q: n.q, r: n.r, dist: current.dist + 1 });
                     }
                 });
             }
         }
-
         return reachable;
     },
 
-    revealFog(grid, active, centerQ, centerR) {
-        const centerKey = `${centerQ}_${centerR}`;
-        const centerCell = grid[centerKey];
-        if (!centerCell) return;
+    isObstacle(cell) {
+        if(cell.isFog) return true;
+        if(cell.content.unit) return true;
 
-        Object.entries(grid).forEach(([key, cell]) => {
+        if(!cell.content.obj) return false;
+        else if(map.obstacleObjects.includes(cell.content.obj.obj)) return true;
+
+        return false;
+    },
+
+    isInteractable(cell) {
+        if(cell.content && cell.content.obj && cell.content.obj.obj && map.interactableObjects.includes(cell.content.obj.obj)) {
+            return true;
+        }
+        else if(cell.content && cell.content.unit) {
+            const char = characterManager.getCharacterById(cell.content.unit);
+            if(!char || char.team) return true;
+
+            cell.isInteractable = true;
+            return true;
+        }
+        else if(cell.innerMap && gameData[currentGame].tacticalMaps.find(m=>m.mapId===cell.innerMap)) {
+            cell.isInteractable = true;
+            return true;
+        }
+
+        return false;
+    },
+
+    revealFog(centerQ, centerR) {
+        const {activeUnit} = hexFunction.data;
+        if (!activeUnit) return;
+
+        const charId = activeUnit.id; // Или factionId, смотря чей туман
+
+        if (!currentSeason.exploredCells[charId]) currentSeason.exploredCells[charId] = {};
+
+        const radius = activeUnit.visionRadius || 2;
+        // Берем только гексы в радиусе (вместо 2000 перебираем ~15-30)
+        const nearbyKeys = hexFunction.getHexesInRadius(centerQ, centerR, radius);
+
+        nearbyKeys.forEach(key => {
             const [q, r] = key.split('_').map(Number);
 
-            if (hexFunction.canSee(grid, active, q, r)) {
-                cell.explored = true;
+            // Твоя функция рейкастинга (проверка луча)
+            if (hexFunction.canSee(q, r)) {
+                // Записываем в НАШ объект, а не в ячейку сетки!
+                currentSeason.exploredCells[charId][key] = true;
             }
         });
 
         hexFunction.updateHex();
+
+        // const centerKey = `${centerQ}_${centerR}`;
+        // const centerCell = grid[centerKey];
+        // if (!centerCell) return;
+        //
+        // Object.entries(grid).forEach(([key, cell]) => {
+        //     const [q, r] = key.split('_').map(Number);
+        //
+        //     if (hexFunction.canSee(grid, active, q, r)) {
+        //         cell.explored = true;
+        //     }
+        // });
+        //
+        // hexFunction.updateHex();
     },
 
-    canSee(grid, active, targetQ, targetR) {
-        if (!active) return false;
+    canSee(targetQ, targetR) {
+        const {gridData, activeUnit} = hexFunction.data;
+        if (!activeUnit) return false;
 
         // 1. Быстрая проверка дистанции
-        const dist = hexFunction.getHexDistance(active.q, active.r, targetQ, targetR);
-        if (dist > (active.visionRadius || 2)) return false;
+        const dist = hexFunction.getHexDistance(activeUnit.q, activeUnit.r, targetQ, targetR);
+        if (dist > (activeUnit.visionRadius || 2)) return false;
         if (dist === 0) return true;
 
         // 2. Рейкастинг: проверяем все клетки на пути
-        const line = hexFunction.getLine(active.q, active.r, targetQ, targetR);
+        const line = hexFunction.getLine(activeUnit.q, activeUnit.r, targetQ, targetR);
 
         for (let i = 0; i < line.length - 1; i++) {
             const point = line[i];
             // Пропускаем саму клетку, где стоит юнит
-            if (point.q === active.q && point.r === active.r) continue;
+            if (point.q === activeUnit.q && point.r === activeUnit.r) continue;
 
-            const cell = hexFunction.getCell(grid, point.q, point.r);
+            const cell = hexFunction.getCell(point.q, point.r);
             if (!cell) return false;
 
             // ПРЕПЯТСТВИЯ: если на пути стена или высокая гора
-            if (cell.content?.obj === 'wall' || cell.terrain === 'mountain') return false;
+            if(hexFunction.isObstacle(cell)) return false;
+            // if (cell.content?.obj?.type === 'wall' || cell.terrain === 'mountain') return false;
 
             // Высота: если клетка на пути намного выше юнита, она закрывает обзор
-            const heightDiff = cell.height - hexFunction.getCell(grid, active.q, active.r).height;
+            const heightDiff = cell.height - hexFunction.getCell(activeUnit.q, activeUnit.r).height;
             if (heightDiff >= 1) return false;
         }
 
@@ -623,83 +1122,83 @@ const hexFunction = {
         return cells;
     },
 
-    executeMove(grid, active, size, zoom, targetQ, targetR) {
-        if(!active) return;
-        const path = hexFunction.findPath(grid, active.q, active.r, targetQ, targetR);
+    executeMove(targetQ, targetR) {
+        let {gridData, activeUnit, currentReachable, sizes} = hexFunction.data;
+        if(!activeUnit) return;
+        const path = hexFunction.findPath(gridData, activeUnit.q, activeUnit.r, targetQ, targetR);
         if (!path || path.length < 2) return;
 
         path.shift(); // Убираем текущую клетку
 
         const step = () => {
-            if (path.length === 0 || active.currentWalkRange <= 0) {
-                map.currentReachable = null;
-                hexFunction.revealFog(grid, active, active.q, active.r);
-                if (active.currentWalkRange <= 0) hexFunction.nextTurn();
+            if (path.length === 0 || activeUnit.currentWalkRange <= 0) {
+                currentReachable = null;
+                hexFunction.revealFog(activeUnit.q, activeUnit.r);
+                if (activeUnit.currentWalkRange <= 0) hexFunction.nextTurn();
                 return;
             }
 
             // --- ТОЧКА ОЧИСТКИ ---
-            const oldQ = active.q;
-            const oldR = active.r;
+            const oldQ = activeUnit.q;
+            const oldR = activeUnit.r;
             const oldKey = `${oldQ}_${oldR}`;
 
             const nextCell = path.shift();
             const newKey = `${nextCell.q}_${nextCell.r}`;
 
             // 1. Копируем данные
-            const unitData = grid[oldKey].content;
+            const unitData = gridData[oldKey].content.unit;
 
             // 2. СТЕРЕТЬ СТАРУЮ КЛЕТКУ (Явно)
-            grid[oldKey].content = null;
+            gridData[oldKey].content.unit = null;
 
             // 3. ЗАПИСАТЬ В НОВУЮ
-            grid[newKey].content = unitData;
+            gridData[newKey].content.unit = unitData; //{...unitData, q: nextCell.q,r: nextCell.r};
 
-            const targetCell = grid[newKey];
+            const targetCell = gridData[newKey];
 
-            if (targetCell.content) {
-                const obj = targetCell.content;
-
+            if (targetCell.content.unit) {
+                const obj = characterManager.getCharacterById(targetCell.content.unit);
                 // ЛОГИКА ЛУТА (Сундуки и Трупы)
                 if (obj.inventory?.length > 0) {
                     const foundLoot = [...obj.inventory];
-                    active.inventory = [...(active.inventory || []), ...foundLoot];
+                    activeUnit.inventory = [...(activeUnit.inventory || []), ...foundLoot];
                     obj.inventory = []; // Очищаем, чтобы не лутать вечно
                     console.log(`Подобрано предметов: ${foundLoot.length}`);
                 }
-
-                // ЛОГИКА ПОРТАЛА
-                if (obj.obj === 'portal') {
+            }
+            if (targetCell.content.obj) {
+                const obj = targetCell.content.obj;
+                if (obj.type === 'portal') {
                     const tId = obj.targetMapId;
                     const [tQ, tR] = (obj.targetCoords || [0, 0]).map(Number);
                     // Останавливаем пошаговый ход и прыгаем в новую локацию
-                    this.switchLocation(tId, tQ, tR);
+                    mapManager.switchLocation(tId, tQ, tR);
                     return; // Выход из рекурсии step
                 }
             }
-
             // ЛОГИКА ТРИГГЕРОВ (Диалоги, Урон)
             if (targetCell.event && !targetCell.event.fired) {
-                this.handleTrigger(targetCell.event, active);
+                battleManager.handleTrigger(targetCell.event, activeUnit);
                 if (targetCell.event.once) targetCell.event.fired = true;
             }
 
             // 4. Обновить координаты в объекте юнита
-            active.q = nextCell.q;
-            active.r = nextCell.r;
-            active.hex = newKey;
-            active.currentWalkRange -= 1;
+            characterManager.modifyPosition(activeUnit.id, {q:nextCell.q,r:nextCell.r});
+            // activeUnit.q = nextCell.q;
+            // activeUnit.r = nextCell.r;
+            // activeUnit.hex = newKey;
+            activeUnit.currentWalkRange -= 1;
 
-            const startPos = hexFunction.hexToPixel(oldQ, oldR, size / zoom);
-            const endPos = hexFunction.hexToPixel(nextCell.q, nextCell.r, size / zoom);
-            console.log(startPos, endPos);
+            const startPos = hexFunction.hexToPixel(oldQ, oldR);
+            const endPos = hexFunction.hexToPixel(nextCell.q, nextCell.r);
 
             hexFunction.updateHex();
 
-            console.log(grid);
-
-            hexFunction.animateMove(oldQ, oldR, nextCell.q, nextCell.r, startPos, endPos, () => {
-                hexFunction.revealFog(grid, active, active.q, active.r);
+            hexFunction.animateMove(oldQ, oldR, nextCell.q, nextCell.r, () => {
+                hexFunction.revealFog(activeUnit.q, activeUnit.r);
+                playerHUD.renderDock(activeUnit);
+                main.saveCurrentSeason();
                 step();
             });
         };
@@ -707,11 +1206,14 @@ const hexFunction = {
         step();
     },
 
-    animateMove(oldQ, oldR, newQ, newR, startPos, endPos, callback) {
-        const {gridData, size, mapCharSize, zoom, currentBounds} = hexFunction.data;
+    animateMove(oldQ, oldR, newQ, newR, callback) {
+        const {gridData, sizes:{cellSize, charSize, width, height, bounds}, camera:{zoom}} = hexFunction.data;
 
-        const unitData = gridData[`${newQ}_${newR}`].content;
+        const unitData = characterManager.getCharacterById(gridData[`${newQ}_${newR}`].content.unit);
         if (!unitData) return callback();
+
+        const startPos = hexFunction.hexToPixel(oldQ, oldR);
+        const endPos = hexFunction.hexToPixel(newQ, newR);
 
         // const startPos = hexFunction.hexToPixel(oldQ, oldR, size);
         // const endPos = hexFunction.hexToPixel(newQ, newR, size);
@@ -719,48 +1221,64 @@ const hexFunction = {
         const ghost = createEl('div', `ghost-character character tf-team-${unitData.team} selected`);
 
         // Если есть аватар — используем его, иначе символ
-        if (avatars[unitData.id]) {
-            const img = new Image();
-            img.src = avatars[unitData.id];
-            ghost.append(img);
+        let image;
+        if(fullheight[unitData.id] && assets.loadedFullHeight[unitData.id]) {
+            image = assets.loadedFullHeight[unitData.id];
+            ghost.append(image);
+        }
+        else if(avatars[unitData.id] && assets.loadedAvatars[unitData.id]) {
+            // const img = new Image();
+            // img.src = avatars[unitData.id];
+            // ghost.append(img);
+            image = assets.loadedAvatars[unitData.id];
+            ghost.append(image);
         } else {
             ghost.innerHTML = `<div class="unit-symbol">${unitData.symbol || '👤'}</div>`;
         }
 
-        let offset, padding={x:0,y:0};
+        const coef = 0.8;
+        const maxSize = charSize * coef * zoom; // Максимальный размер внутри гекса
+        const ratio = Math.min(maxSize / image.width, maxSize / image.height) * zoom;
+        const newWidth = image.width * ratio * coef;
+        const newHeight = image.height * ratio * coef;
+
+        let offsetX=0, offsetY=0, padding={x:0,y:0};
+
+        // const coef = 1.5;
+        // const maxSize = cellSize * zoom * coef; // Максимальный размер внутри гекса
+        // const ratio = Math.min(maxSize / image.width, maxSize / image.height);
+        // const newWidth = image.width * ratio;
+        // const newHeight = image.height * ratio;
 
         if(tacticalMap.ctx) {
-            offset = mapCharSize/4 + size /4;
+            // offsetX = charSize*coef/4 + cellSize * zoom * coef /4;
+            // offsetY = charSize*coef/4 + cellSize * zoom * coef /4;
+
+            offsetX = (newWidth)/2;
+            offsetY = (newHeight);
         }
         else if(regionMap.ctx) {
-            offset = (mapCharSize /2);
+            offsetX = (newWidth)/2;
+            offsetY = (newHeight);
 
-            const rect = elementById('region-canvas').getBoundingClientRect();
-            const parentRect = elementById('map').getBoundingClientRect();
-            padding = {
-                // x: rect.left - parentRect.left,
-                // y: rect.top - parentRect.top
-                x: 0,
-                y: 0
-            };
-            console.log(endPos, currentBounds, padding);
-            startPos.x = (startPos.x - currentBounds.x) * zoom + padding.x;
-            startPos.y = (startPos.y - currentBounds.y) * zoom + padding.y;
-            endPos.x = (endPos.x - currentBounds.x) * zoom + padding.x;
-            endPos.y = (endPos.y - currentBounds.y) * zoom + padding.y;
-
-            console.log(startPos, endPos);
+            startPos.x = (startPos.x - bounds.x);
+            startPos.y = (startPos.y - bounds.y);
+            endPos.x = (endPos.x - bounds.x);
+            endPos.y = (endPos.y - bounds.y);
         }
         else {
-            offset = 0;
+            // offsetX = 0;
+            // offsetY = 0;
+            offsetX = (newWidth)/2;
+            offsetY = (newHeight);
         }
 
         Object.assign(ghost.style, {
             position: 'absolute',
-            left: `${startPos.x - offset}px`,
-            top: `${startPos.y - offset}px`,
-            width: `${mapCharSize}px`,
-            height: `${mapCharSize}px`,
+            left: `${startPos.x - offsetX}px`,
+            top: `${startPos.y - offsetY}px`,
+            width: `${newWidth}px`,
+            height: `${newHeight}px`,
             zIndex: '1000',
             transition: 'all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1)', // Более плавный ход
             pointerEvents: 'none'
@@ -783,8 +1301,8 @@ const hexFunction = {
         hexFunction.updateHex();
 
         requestAnimationFrame(() => {
-            ghost.style.left = `${endPos.x - offset}px`;
-            ghost.style.top = `${endPos.y - offset}px`;
+            ghost.style.left = `${endPos.x - offsetX}px`;
+            ghost.style.top = `${endPos.y - offsetY}px`;
         });
 
         setTimeout(()=>{
@@ -798,9 +1316,142 @@ const hexFunction = {
         }, 400);
     },
 
+    saveCell(q,r) {
+        const hexKey = `${q}_${r}`;
+        const hexPos = hexFunction.hexToPixel(q, r);
+        let cell = globalMap.gridData[hexKey];
+        if (!cell.content) cell.content = {};
+
+        let currentYield = null;
+        if (map.tempCellData) {
+            currentYield = {};
+            Object.keys(map.tempCellData.yield).forEach(key => {
+                const val = parseInt(map.tempCellData.yield[key]) || 0;
+                if (val > 0) currentYield[key] = map.tempCellData.yield[key];
+            });
+        }
+        if (currentYield) {
+            cell.yield = currentYield;
+        }
+
+        ['terrain', 'height', 'region', 'faction', 'innerMap'].forEach(key => {
+            if (map.selects[key].value !== "-1") {
+                cell[key] = map.selects[key].value;
+            }
+            else if (map.paintEraser) delete cell[key];
+        });
+        document.querySelectorAll('.map-flag-btn').forEach(b => {
+            b.classList.remove('active');
+            try  {
+                const data = JSON.parse(b.getAttribute('data-data'));
+                const flag = data.data.id;
+                if(b.classList.contains('active')) {
+                    map.selected.cell[flag] = true;
+                    if (flag === 'isCapital') {
+                        Object.values(globalMap.gridData).forEach(cell => {
+                            if (String(cell.faction) === String(cell.faction)) delete cell.isCapital;
+                        });
+                    }
+                }
+                else {
+                    delete map.selected.cell[flag];
+                }
+            } catch (e) {}
+        });
+
+        const cityId = map.inputs.cityId.value;
+        const cityName = map.inputs.cityName.value;
+
+        // if (!cityId) return; // Без ID красить нельзя
+
+        if (cell.isCity) {
+            if (cityId) {
+                cell.cityId = cityId;
+            }
+            if (cityName) {
+                cell.cityName = cityName;
+            }
+
+            if (!cell.social) {
+                cell.social = {
+                    cultures: {}, religions: {},
+                    dominance: {}, pressure: {cultures: {}, religions: {}}
+                };
+            }
+
+            const selectedCult = map.selects.culture.value;
+            const selectedRel = map.selects.religion.value;
+
+            if (selectedCult !== "-1") {
+                cell.social.cultures = {[selectedCult]: 1.0};
+                cell.social.dominance.culture = selectedCult;
+            }
+            if (selectedRel !== "-1") {
+                cell.social.religions = {[selectedRel]: 1.0};
+                cell.social.dominance.religion = selectedRel;
+            }
+            if (parseInt(map.inputs.cityPopulation.value)) {
+                cell.social.population = parseInt(map.popInput.value) || 0;
+            }
+        }
+
+        // 2. ДЛЯ ВСЕХ КЛЕТОК (и городов, и полей): Привязка к провинции
+        // Теперь каждый гекс знает, к какому "центру" он относится
+        if (cityId) {
+            cell.provinceId = cityId;
+            cell.provinceHex = Object.keys(globalMap.gridData).find(key =>
+                globalMap.gridData[key].isCity && globalMap.gridData[key].cityId === cityId
+            );
+        }
+
+        globalMap.update();
+    },
+
+    saveCellCharacter(q,r) {
+        const hexKey = `${q}_${r}`;
+        const hexPos = hexFunction.hexToPixel(q, r);
+        let cell = globalMap.gridData[hexKey];
+
+        if (map.selects.character.value !== "-1") {
+            if (!cell.content) cell.content = {};
+            cell.content.unit = map.selects.character.value;
+        }
+
+        const character = characterManager.getCharacterById(cell.content.unit);
+
+        if (character && map.selects.team.value) {
+            character.team = map.selects.team.value;
+        }
+
+        globalMap.update();
+    },
+
+    saveCellObject(q,r) {
+        const hexKey = `${q}_${r}`;
+        const hexPos = hexFunction.hexToPixel(q, r);
+        let cell = globalMap.gridData[hexKey];
+
+        if (map.selects.object.value !== "-1") {
+            if (!cell.content) cell.content = {};
+            cell.content.obj = {type: 'obj', obj: map.selects.object.value};
+        }
+
+        if (map.inputs.objectId.value) {
+            if (!cell.content) cell.content = {};
+            cell.content.obj.id = map.inputs.objectId.value;
+        }
+
+        if (map.inputs.objectName.value) {
+            if (!cell.content) cell.content = {};
+            cell.content.obj.name = map.inputs.objectName.value;
+        }
+
+        globalMap.update();
+    },
+
     nextTurn() {
         if(tacticalMap.ctx) {
-            tacticalMap.nextTurn();
+            battleManager.nextTurn();
         }
         else if(regionMap.ctx) {
             // regionMap.update();
@@ -827,7 +1478,7 @@ const hexFunction = {
 
         // 2. Ищем все источники (фонари, факелы, магию)
         Object.entries(grid).forEach(([key, cell]) => {
-            if (cell.content?.obj === 'lamp' || cell.content?.lightSource) {
+            if (cell.content?.obj?.type === 'lamp' || cell.content?.lightSource) {
                 const [q, r] = key.split('_').map(Number);
                 const radius = cell.content.lightRadius || 3;
 
@@ -835,7 +1486,7 @@ const hexFunction = {
                 Object.keys(grid).forEach(targetKey => {
                     const [tq, tr] = targetKey.split('_').map(Number);
 
-                    if (hexFunction.canSee(grid, active, q, r)) { // Передаем источник как центр зрения
+                    if (hexFunction.canSee(q, r)) { // Передаем источник как центр зрения
                         const dist = hexFunction.getHexDistance(q, r, tq, tr);
                         if (dist <= radius) {
                             // Свет затухает с расстоянием
@@ -852,18 +1503,33 @@ const hexFunction = {
     },
 
     get data() {
-        let d;
+        let d, view = 'global';
         if(tacticalMap.ctx) {
+            view = 'tactical';
             d = tacticalMap;
         }
         else if(regionMap.ctx) {
+            view = 'region';
             d = regionMap;
         }
         else {
-            d = map;
+            // d = map;
+            d = globalMap;
         }
-        const {gridData, size, mapCharSize, zoom, currentBounds} = d;
-        return {gridData, size, mapCharSize, zoom, currentBounds};
+        const sizes = {
+            // cellSize: d.sizes.cellSize,
+            // charSize: d.sizes.charSize,
+            //
+            // rows: d.sizes.rows,
+            // cols: d.sizes.cols,
+            // padding: d.sizes.padding,
+            ...d.sizes,
+            width: d.width,
+            height: d.height,
+            bounds: d.currentBounds
+        };
+        const {canvas, ctx, gridData, activeUnit, show, camera, currentBounds} = d;
+        return {currentMap: d, canvas, ctx, view, gridData, activeUnit, show, sizes, camera, currentBounds};
     },
 
     getTerrainColor(t) {

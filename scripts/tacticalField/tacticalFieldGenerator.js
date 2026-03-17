@@ -5,9 +5,11 @@ const tacticalHexGenerator = {
         {q: -1, r: 0}, {q: -1, r: 1}, {q: 0, r: 1}
     ],
 
-    generate(type, cols, rows, data = {}) {
+    generate(type, rows, cols, data = {}) {
         // 1. Создаем базовую пустую сетку нужного размера
-        tacticalHexGrid.initGrid(rows, cols);
+        tacticalMap.sizes.rows = rows;
+        tacticalMap.sizes.cols = cols;
+        tacticalMap.initGrid();
         let grid = tacticalMap.gridData;
 
         // 2. Выбираем алгоритм
@@ -35,7 +37,7 @@ const tacticalHexGenerator = {
     generateCave(grid, cols, rows, coef) {
         // Сначала всё заполняем стеной
         Object.keys(grid).forEach(k => {
-            grid[k] = { terrain: 'stone', height: 2, content: {type:'obj', obj:'rock'} };
+            grid[k] = { terrain: 'stone', height: 2, content:{obj: {type:'obj', obj:'rock'}} };
         });
 
         let q = 0, r = Math.floor(rows/2);
@@ -44,7 +46,7 @@ const tacticalHexGenerator = {
         while (tilesToDig > 0) {
             const key = `${q}_${r}`;
             if (grid[key] && grid[key].terrain === 'stone') {
-                grid[key] = { terrain: 'dirt', height: 1, content: null };
+                grid[key] = { terrain: 'dirt', height: 1, content: {} };
                 tilesToDig--;
             }
             const d = this.dirs[Math.floor(Math.random() * 6)];
@@ -58,7 +60,7 @@ const tacticalHexGenerator = {
     // --- FOREST (Hex Clustering) ---
     generateForest(grid, cols, rows, coef) {
         Object.keys(grid).forEach(k => {
-            grid[k] = { terrain: 'grass', height: 1, content: null };
+            grid[k] = { terrain: 'grass', height: 1, content: {} };
         });
 
         const grovesCount = Math.floor((cols * rows) / (25 / coef));
@@ -72,198 +74,268 @@ const tacticalHexGenerator = {
                 const [q, r] = k.split('_').map(Number);
                 const dist = hexFunctionhexFunction.getHexDistance(cq, cr, q, r);
                 if (dist <= 2 && Math.random() > dist * 0.35) {
-                    grid[k].content = { type: 'obj', obj: 'tree' };
+                    grid[k].content.obj = { type: 'obj', obj: 'tree' };
                 }
             });
         }
     },
 
     generateCity(grid, cols, rows, coef = 1) {
-        // 1. Сначала всё "пустырем" (плотно утоптанная земля/камень)
-        Object.keys(grid).forEach(k => {
-            grid[k] = { terrain: 'stone', height: 1, content: null };
-        });
 
-        const midR = Math.floor(rows / 2);
-        const midQ = 0;
+        const baseTerrain = 'stoneRoad';
 
-        // 2. ЦИТАДЕЛЬ (Ратуша + Своя стена)
-        this.placeSpecialBuilding(grid, midQ, midR, 'town_hall', 1.5); // Высота 1.5 для захода
-
-        // Рисуем кольцо стен вокруг Ратуши (радиус 2)
-        const citadelRadius = 2;
-        const gatePos = { q: midQ + 2, r: midR }; // ЕДИНСТВЕННЫЙ ВХОД (Ворота на востоке)
-
-        Object.keys(grid).forEach(k => {
+        const allKeys = Object.keys(grid);
+        allKeys.forEach(k => {
             const [q, r] = k.split('_').map(Number);
-            const dist = hexFunction.getHexDistance(midQ, midR, q, r);
-
-            if (dist === citadelRadius) {
-                if (q === gatePos.q && r === gatePos.r) {
-                    grid[k].content = { type: 'obj', obj: 'door', name: 'Citadel Gates' };
-                    grid[k].terrain = 'road';
-                } else {
-                    grid[k].content = { type: 'obj', obj: 'wall' };
-                    grid[k].height = 2.5;
-                }
-            }
+            grid[k] = { q, r, terrain: baseTerrain, height: 1, content: {} };
         });
 
-        // 3. ХРАМ И РЫНОК (Спецздания)
-        // Храм (в одной стороне)
-        const templePos = { q: midQ - 6, r: midR - 2 };
-        this.placeSpecialBuilding(grid, templePos.q, templePos.r, 'temple', 1.5);
+        // 1. ГЕОМЕТРИЯ
+        const qs = allKeys.map(k => parseInt(k.split('_')[0]));
+        const rs = allKeys.map(k => parseInt(k.split('_').pop()));
+        const minQ = Math.min(...qs), maxQ = Math.max(...qs);
+        const minR = Math.min(...rs), maxR = Math.max(...rs);
+        const midR = Math.floor((minR + maxR) / 2);
 
-        // Рынок (в другой стороне)
-        const marketPos = { q: midQ + 6, r: midR + 2 };
-        this.placeSpecialBuilding(grid, marketPos.q, marketPos.r, 'market', 1.1);
+        const midRowQs = allKeys.filter(k => k.endsWith(`_${midR}`)).map(k => parseInt(k.split('_')));
+        const midQ = Math.floor((Math.min(...midRowQs) + Math.max(...midRowQs)) / 2);
+        const center = { q: midQ, r: midR };
 
-        const tavernPos = { q: midQ - 2, r: midR + 6 }; // Размещаем в свободном квартале
-        this.placeSpecialBuilding(grid, tavernPos.q, tavernPos.r, 'tavern', 1.3);
 
-        // Логика декора для таверны (внутри placeSpecialBuilding)
+        const cityRadius = Math.max(maxQ - minQ, maxR - minR) / 2;
+        // Функция-помощник для генерации точки на % от радиуса
+        const getPosByRadius = (center, minPercent, maxPercent) => {
+            const minDist = Math.floor(cityRadius * minPercent);
+            const maxDist = Math.floor(cityRadius * maxPercent);
+            const dist = Math.floor(Math.random() * (maxDist - minDist + 1)) + minDist;
 
-        // 4. ГОРОДСКАЯ СТЕНА (По контуру прямоугольника)
-        // 1. ОПРЕДЕЛЯЕМ ТОЧКИ ВОРОТ (например, по одной на каждой стороне)
-        const gates = {
-            top: Math.floor(cols / 2),
-            bottom: Math.floor(cols / 2),
-            left: Math.floor(rows / 2),
-            right: Math.floor(rows / 2)
+            const angle = Math.random() * Math.PI * 2;
+            // Примерный перевод полярных координат в гексагональные (упрощенно)
+            const dq = Math.round(dist * Math.cos(angle));
+            const dr = Math.round(dist * Math.sin(angle));
+
+            return { q: center.q + dq, r: center.r + dr };
         };
 
-        Object.keys(grid).forEach(k => {
-            const [q, r] = k.split('_').map(Number);
-            const r_offset = Math.floor(r / 2);
+        const points = {
+            city: center,
+            // townhall: { q: midQ + 1, r: midR - 1 }, // Добавили Ратушу рядом с центром
+            // church: { q: midQ - 6, r: midR - 3 },
+            // tavern: { q: midQ + 6, r: midR + 3 },
+            // inn: { q: midQ - 2, r: midR + 6 },
+            // castle: { q: midQ + 4, r: midR - 4 },
+            // jailhouse: { q: midQ - 7, r: midR + 3 },
+            // blacksmith: { q: midQ + 2, r: midR + 4 },
+            // stable: { q: midQ + 7, r: midR - 2 },
+            // graveyard: { q: midQ - 8, r: midR - 5 },
+            // warehouse: { q: midQ + 5, r: midR - 1 } // Добавили Склад
 
-            // Проверка: является ли гекс краем прямоугольника
-            const isTop = (r === 0);
-            const isBottom = (r === rows - 1);
-            const isLeft = (q === -r_offset);
-            const isRight = (q === cols - r_offset - 1);
+            // Внутреннее кольцо (0-20% от радиуса)
+            townhall: getPosByRadius(center, 0.1, 0.2),
+            warehouse: getPosByRadius(center, 0.15, 0.3),
 
-            if (isTop || isBottom || isLeft || isRight) {
-                let isGatePos = false;
+            // Торгово-ремесленный пояс (30-50% от радиуса)
+            blacksmith: getPosByRadius(center, 0.3, 0.5),
+            tavern: getPosByRadius(center, 0.3, 0.5),
+            inn: getPosByRadius(center, 0.4, 0.6),
+            stable: getPosByRadius(center, 0.4, 0.6),
 
-                // Проверяем, совпадает ли текущий гекс с выбранной точкой ворот
-                if (isTop && q === gates.top - r_offset) isGatePos = true;
-                if (isBottom && q === gates.bottom - r_offset) isGatePos = true;
-                if (isLeft && r === gates.left) isGatePos = true;
-                if (isRight && r === gates.right) isGatePos = true;
+            // Окраины и спецобъекты (60-85% от радиуса)
+            castle: getPosByRadius(center, 0.6, 0.8),
+            church: getPosByRadius(center, 0.5, 0.7),
+            jailhouse: getPosByRadius(center, 0.7, 0.9),
+            graveyard: getPosByRadius(center, 0.8, 0.95)
+        };
 
-                if (isGatePos) {
-                    // СТАВИМ ВОРОТА
-                    grid[k].terrain = 'road';
-                    grid[k].content = { type: 'obj', obj: 'door', name: 'Main Gates' };
-                    grid[k].height = 1.2;
-                } else {
-                    // СТАВИМ ГЛУХУЮ СТЕНУ
-                    grid[k].terrain = 'stone';
-                    grid[k].content = { type: 'obj', obj: 'wall' };
-                    grid[k].height = 2.5;
-                }
-            }
-        });
-
-        // 5. ЖИЛАЯ ЗАСТРОЙКА И ДЕКОР
-        Object.keys(grid).forEach(k => {
+        // --- НОВОЕ: ЦЕНТРАЛЬНАЯ ПЛОЩАДЬ ---
+        allKeys.forEach(k => {
             const cell = grid[k];
-            if (cell.terrain === 'stone' && !cell.content) {
-                if (Math.random() < 0.4 * coef) {
-                    cell.content = { type: 'obj', obj: 'house' };
-                    cell.height = 1.3;
-                } else if (Math.random() < 0.1) {
-                    const deco = ['well', 'tree', 'lamp'][Math.floor(Math.random()*3)];
-                    cell.content = { type: 'obj', obj: deco };
+            const d = hexFunction.getHexDistance(cell.q, cell.r, center.q, center.r);
+            if (d <= 2) {
+                cell.terrain = 'mud'; // Расчищаем площадь
+                if (d > 0 && Math.random() < 0.2) cell.content.obj = { type: 'obj', obj: 'lamp' };
+            }
+        });
+
+        // 2. СТЕНЫ: БАШНИ ПО ВСЕМУ СЕВЕРУ И ЮГУ
+        const gateList = [];
+        allKeys.forEach(k => {
+            const cell = grid[k];
+            const { q, r } = cell;
+            const neighbors = [{q:1,r:0},{q:1,r:-1},{q:0,r:-1},{q:-1,r:0},{q:-1,r:1},{q:0,r:1}]
+                .filter(off => grid[`${q+off.q}_${r+off.r}`]).length;
+
+            if (neighbors < 6) {
+                const rowKeys = allKeys.filter(key => key.endsWith(`_${r}`));
+                const qs = rowKeys.map(key => parseInt(key.split('_')));
+                const isSideEdge = (q === Math.min(...qs) || q === Math.max(...qs));
+                const isVerticalEdge = (r === minR || r === maxR);
+
+                // ВОРОТА
+                const isMidGate = (r === midR && isSideEdge) ||
+                    (isVerticalEdge && q === Math.floor((Math.min(...qs) + Math.max(...qs)) / 2));
+
+                if (isMidGate) {
+                    cell.terrain = 'mud';
+                    cell.content.obj = { type: 'obj', obj: 'door', name: 'Gates' };
+                    gateList.push({ q, r });
+                }
+                // БАШНИ: Весь север, весь юг и углы запада/востока
+                else if ((isVerticalEdge && (q % 2 === 0)) || (isSideEdge && (r % 2 === 0))) {
+                    cell.terrain = 'stoneWall';
+                    cell.content.obj = { type: 'obj', obj: 'tower' };
+                    cell.height = 6.5;
+                } else {
+                    cell.terrain = 'stoneWall';
+                    cell.content.obj = null;
+                    cell.height = 5.5;
                 }
             }
         });
 
-        // // 5. ЖИЛЫЕ КВАРТАЛЫ (Только дома и декор)
-        // Object.keys(grid).forEach(k => {
-        //     const cell = grid[k];
-        //     if (cell.terrain === 'stone' && !cell.content) {
-        //         if (Math.random() < 0.5 * coef) {
-        //             cell.content = { type: 'obj', obj: 'house' };
-        //             cell.height = 1.3;
-        //         } else {
-        //             // Дворы (декор)
-        //             const decoRoll = Math.random();
-        //             if (decoRoll < 0.1) cell.content = { type: 'obj', obj: 'well' };
-        //             else if (decoRoll < 0.15) cell.content = { type: 'obj', obj: 'tree' };
-        //             else if (decoRoll < 0.2) cell.content = { type: 'obj', obj: 'lamp' };
-        //         }
-        //     }
+        const makeStreet = (start, end) => {
+            let curr = { ...start };
+            for (let i = 0; i < 30; i++) { // Увеличили лимит шагов для углов
+                const dist = hexFunction.getHexDistance(curr.q, curr.r, end.q, end.r);
+                if (dist === 0) break;
+                let best = null, minDist = Infinity;
+                [{q:1,r:0},{q:1,r:-1},{q:0,r:-1},{q:-1,r:0},{q:-1,r:1},{q:0,r:1}].forEach(off => {
+                    const n = { q: curr.q + off.q, r: curr.r + off.r };
+                    if (!grid[`${n.q}_${n.r}`]) return;
+                    if (grid[`${n.q}_${n.r}`].terrain === 'stoneWall') return;
+                    if (grid[`${n.q}_${n.r}`].content.obj) return;
+                    const d = hexFunction.getHexDistance(n.q, n.r, end.q, end.r);
+                    if (d < minDist) { minDist = d; best = n; }
+                });
+                if (!best) break;
+                curr = best;
+                grid[`${curr.q}_${curr.r}`].terrain = 'mud';
+            }
+        };
+
+        // --- ЛОГИКА ЗАПОЛНЕНИЯ УГЛОВ ---
+        // Находим 4 экстремальные точки (Углы Башен)
+        const corners = [
+            {q: minQ+3, r: minR+3}, // Верх-Лево
+            {q: maxQ-2, r: minR+3}, // Верх-Право
+            {q: minQ+3, r: maxR-2}, // Низ-Лево
+            {q: maxQ-2, r: maxR-2}  // Низ-Право
+        ];
+
+        // // Тянем дороги из каждого угла в центр — это "прошьет" город насквозь
+        // corners.forEach(c => {
+        //     const startNode = allKeys.map(k => grid[k])
+        //         .sort((a,b) => hexFunction.getHexDistance(a.q, a.r, c.q, c.r) - hexFunction.getHexDistance(b.q, b.r, c.q, c.r))[0];
+        //
+        //     if (startNode) makeStreet({q: startNode.q, r: startNode.r}, center);
         // });
+
+        // --- КОЛЬЦЕВАЯ СВЯЗЬ (Соединяем все здания в цепочку) ---
+        const allPoints = Object.values(points);
+        for (let i = 0; i < allPoints.length; i++) {
+            makeStreet(allPoints[i], allPoints[(i + 1) % allPoints.length]);
+        }
+
+        console.log(gateList, corners);
+        gateList.forEach(g => makeStreet(g, center));
+        corners.forEach(g => makeStreet(g, center));
+        // corners.forEach(c => {
+        //
+        // });
+
+        // 4. СТАВИМ ГЛАВНЫЕ ЗДАНИЯ
+        Object.entries(points).forEach(([type, pos]) => {
+            this.placeSpecialBuilding(grid, pos.q, pos.r, type, 1.5, baseTerrain);
+        });
+
+        // 5. ДИНАМИЧЕСКОЕ ЗОНИРОВАНИЕ (РАЙОНЫ)
+        allKeys.forEach(k => {
+            const cell = grid[k];
+            if (cell.terrain === baseTerrain && !cell.content.obj) {
+                const dToTemple = hexFunction.getHexDistance(cell.q, cell.r, points.church.q, points.church.r);
+                const dToPrison = hexFunction.getHexDistance(cell.q, cell.r, points.jailhouse.q, points.jailhouse.r);
+                const dToCenter = hexFunction.getHexDistance(cell.q, cell.r, center.q, center.r);
+
+                // НОВЫЕ ДИСТАНЦИИ
+                const dToBlacksmith = hexFunction.getHexDistance(cell.q, cell.r, points.blacksmith.q, points.blacksmith.r);
+                const dToGraveyard = hexFunction.getHexDistance(cell.q, cell.r, points.graveyard.q, points.graveyard.r);
+                const dToStable = hexFunction.getHexDistance(cell.q, cell.r, points.stable.q, points.stable.r);
+                const dToWarehouse = hexFunction.getHexDistance(cell.q, cell.r, points.warehouse.q, points.warehouse.r);
+
+                // А) ЭЛИТНЫЙ РАЙОН (У Храма)
+                if (dToTemple < 4) {
+                    const roll = Math.random();
+                    if (roll < 0.6) cell.content.obj = { type: 'obj', obj: 'house' };
+                    else {
+                        cell.content.obj = { type: 'obj', obj: ['flowers', 'bench', 'garden', 'fountain', 'statue1','obelisk'][Math.floor(Math.random()*5)] };
+                        cell.terrain = 'grass';
+                    }
+                }
+                // Б) ТРУЩОБЫ (У Тюрьмы)
+                else if (dToPrison < 4) {
+                    const roll = Math.random();
+                    if (roll < 0.8) cell.content.obj = { type: 'obj', obj: 'house' };
+                    else cell.content.obj = { type: 'obj', obj: ['barrel', 'bones', 'well'][Math.floor(Math.random()*3)] };
+                }
+                // В) ПРОМЗОНА И СКЛАДЫ
+                else if (dToBlacksmith < 3 || dToWarehouse < 3) {
+                    const roll = Math.random();
+                    if (roll < 0.5) cell.content.obj = { type: 'obj', obj: 'house' };
+                    else {
+                        cell.content.obj = { type: 'obj', obj: ['barrel', 'crate', 'wagon', 'crate'][Math.floor(Math.random()*4)] };
+                        cell.terrain = baseTerrain;
+                    }
+                }
+                // Г) ОБЫЧНЫЙ ГОРОД / КЛАДБИЩЕ / КОНЮШНЯ (Твоя логика без изменений)
+                else if (dToGraveyard < 3) {
+                    const roll = Math.random();
+                    if (roll < 0.7) {
+                        cell.content.obj = { type: 'obj', obj: ['graveyard', 'mausoleum'][Math.floor(Math.random()*2)] };
+                        cell.terrain = 'grass';
+                    } else {
+                        cell.content.obj = { type: 'obj', obj: 'tree' };
+                        cell.terrain = 'grass';
+                    }
+                }
+                else if (dToStable < 3) {
+                    const roll = Math.random();
+                    if (roll < 0.4) cell.content.obj = { type: 'obj', obj: 'house' };
+                    else {
+                        cell.content.obj = { type: 'obj', obj: ['haycock', 'wagon', 'barrel'][Math.floor(Math.random()*3)] };
+                        cell.terrain = 'dirt';
+                    }
+                }
+                else {
+                    if (Math.random() < (0.9 - dToCenter * 0.04)) {
+                        cell.content.obj = { type: 'obj', obj: 'house' };
+                    } else {
+                        const deco = ['tree', 'tree', 'tree', 'lamp', 'well', 'sign'][Math.floor(Math.random()*7)];
+                        cell.content.obj = { type: 'obj', obj: deco };
+                        if (deco === 'tree') cell.terrain = 'grass';
+                    }
+                }
+            }
+        });
     },
 
-    // Вспомогательная функция для крупных зданий
-    placeSpecialBuilding(grid, q, r, type, h) {
+    placeSpecialBuilding(grid, q, r, type, h, baseTerrain) {
         const key = `${q}_${r}`;
         if (!grid[key]) return;
 
-        grid[key].content = { type: 'obj', obj: type };
+        grid[key].content.obj = { type: 'obj', obj: type };
         grid[key].height = h;
-        grid[key].terrain = 'road'; // Расчищаем пол
+        grid[key].terrain = baseTerrain; // Расчищаем пол
 
-        // Если это рынок — добавим вокруг пару сундуков/прилавков
-        if (type === 'market') {
+        if (type === 'tavern') {
             this.dirs.forEach(d => {
                 const nKey = `${q+d.q}_${r+d.r}`;
                 if (grid[nKey] && Math.random() > 0.5) {
-                    grid[nKey].content = { type: 'obj', obj: 'chest' };
-                    grid[nKey].terrain = 'road';
+                    grid[nKey].content.obj = { type: 'obj', obj: 'tent'};
+                    grid[nKey].terrain = 'mud';
                 }
             });
         }
-        // if (type === 'tavern') {
-        //     this.dirs.forEach(d => {
-        //         const nKey = `${q + d.q}_${r + d.r}`;
-        //         if (grid[nKey] && Math.random() > 0.4) {
-        //             // Ставим бочки или столики (используем существующие спрайты или символы)
-        //             grid[nKey].content = { type: 'obj', obj: 'barrel'};
-        //             grid[nKey].terrain = 'road';
-        //             grid[nKey].height = 1.1; // Низкое препятствие
-        //         }
-        //     });
-        // }
     },
-    // placeSpecialBuilding(grid, q, r, type, height) {
-    //     const mainKey = `${q}_${r}`;
-    //     if (!grid[mainKey]) return;
-    //
-    //     // Само здание
-    //     grid[mainKey].content = { type: 'obj', obj: type };
-    //     grid[mainKey].height = height;
-    //
-    //     // Площадь вокруг здания (расчищаем от домов)
-    //     this.dirs.forEach(d => {
-    //         const nKey = `${q + d.q}_${r + d.r}`;
-    //         if (grid[nKey]) {
-    //             grid[nKey].terrain = 'road';
-    //             grid[nKey].content = null;
-    //         }
-    //     });
-    // },
-
-
-
-    // // --- CITY (Hex Grid Partitioning) ---
-    // generateCity(grid, cols, rows, coef) {
-    //     Object.keys(grid).forEach(k => {
-    //         const [q, r] = k.split('_').map(Number);
-    //         // Дороги по осям (проспекты)
-    //         if (q === 0 || r === Math.floor(rows/2) || (q + r) === 0) {
-    //             grid[k] = { terrain: 'road', height: 1, content: null };
-    //         } else {
-    //             grid[k] = { terrain: 'stone', height: 1, content: null };
-    //             if (Math.random() < 0.3 * coef) {
-    //                 grid[k].content = { type: 'obj', obj: 'house' };
-    //                 grid[k].height = 1.5;
-    //             }
-    //         }
-    //     });
-    // },
 
     // --- Вспомогательные функции ---
     smoothCave(grid) {
@@ -277,9 +349,9 @@ const tacticalHexGenerator = {
             });
 
             if (wallCount >= 4) {
-                grid[k] = { terrain: 'stone', height: 2, content: {type:'obj', obj:'rock'} };
+                grid[k] = { terrain: 'stone', height: 2, content: {obj:{type:'obj', obj:'rock'}}};
             } else if (wallCount < 2) {
-                grid[k] = { terrain: 'dirt', height: 1, content: null };
+                grid[k] = { terrain: 'dirt', height: 1, content: {} };
             }
         });
     },
@@ -329,316 +401,11 @@ const tacticalHexGenerator = {
             const tunnel = hexFunction.getLine(start.q, start.r, end.q, end.r);
             tunnel.forEach(p => {
                 const k = `${p.q}_${p.r}`;
-                if (grid[k]) grid[k] = { terrain: 'dirt', height: 1, content: null };
+                if (grid[k]) grid[k] = { terrain: 'dirt', height: 1, content: {} };
             });
         }
     }
 };
-
-
-// const tacticalFieldGenerator = {
-//
-//     generate(type, cols, rows, data = {}) {
-//         tacticalField.rows = rows;
-//         tacticalField.cols = cols;
-//
-//         let grid = Array.from({ length: rows }, () =>
-//             Array.from({ length: cols }, () => ({ terrain: 'stone', height: 2, content: {type:'obj', obj:'wall'} }))
-//         );
-//
-//         switch (type) {
-//             case 'cave':
-//                 tacticalField.gridData = this.generateCave(grid, cols, rows, data.coef);
-//                 grid = this.generateCave(grid, cols, rows, data.coef);
-//                 grid = this.smoothCave(grid, cols, rows);
-//                 const caves = this.findAllCaves(grid, cols, rows);
-//                 if (caves.length > 1) this.connectAllCaves(grid, caves);
-//                 break;
-//             case 'forest':
-//                 grid = this.generateForest(grid, cols, rows, data.coef);
-//                 break;
-//             case 'city':
-//                 grid = this.generateCity(grid, cols, rows, data.coef);
-//                 break;
-//         }
-//
-//         this.applyHeightSteps(grid, cols, rows);
-//         tacticalField.gridData = grid;
-//
-//         tacticalField.render();
-//     },
-//
-//     generateCave(grid, cols, rows, coef = 1) {
-//         grid = Array.from({ length: rows }, () =>
-//             Array.from({ length: cols }, () => ({ terrain: 'stone', height: 2, content: {type:'obj', obj:'rock'} }))
-//         );
-//         let x = Math.floor(cols / 2), y = Math.floor(rows / 2);
-//         let tilesToDig = (cols * rows) * (0.4 * coef); // 40% карты будет полом
-//
-//         while (tilesToDig > 0) {
-//             if (grid[y][x].terrain === 'stone') {
-//                 grid[y][x] = { terrain: 'dirt', height: 1, content: null };
-//                 tilesToDig--;
-//             }
-//             // Случайный шаг в одном из 4 направлений
-//             const dir = [[0,1],[0,-1],[1,0],[-1,0]][Math.floor(Math.random()*4)];
-//             x = Math.max(1, Math.min(cols - 2, x + dir[0]));
-//             y = Math.max(1, Math.min(rows - 2, y + dir[1]));
-//         }
-//
-//         return grid;
-//     },
-//
-//     generateForest(grid, cols, rows, coef = 1) {
-//         // Заполняем всё травой
-//         // 1. Сначала всё травой
-//         for(let y=0; y<rows; y++) {
-//             for(let x=0; x<cols; x++) {
-//                 grid[y][x] = { terrain: 'grass', height: 1, content: null };
-//             }
-//         }
-//
-//         // 2. Генерируем "центры рощ"
-//         const grovesCount = Math.floor((cols * rows) / (40/coef));
-//         for (let i = 0; i < grovesCount; i++) {
-//             let cx = Math.floor(Math.random() * cols);
-//             let cy = Math.floor(Math.random() * rows);
-//
-//             // Вокруг центра сажаем группу деревьев
-//             for (let dy = -2; dy <= 2; dy++) {
-//                 for (let dx = -2; dx <= 2; dx++) {
-//                     let nx = cx + dx, ny = cy + dy;
-//                     if (ny >= 0 && ny < rows && nx >= 0 && nx < cols) {
-//                         // Чем ближе к центру рощи, тем выше шанс дерева
-//                         const dist = Math.sqrt(dx*dx + dy*dy);
-//                         if (Math.random() > dist * 0.4) {
-//                             grid[ny][nx].content = { type: 'obj', obj: 'tree' };
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//
-//         return grid;
-//     },
-//
-//     generateCity(grid, cols, rows, coef = 1) {
-//         const midX = Math.floor(cols / 2);
-//         const midY = Math.floor(rows / 2);
-//
-//         // 1. Сетка дорог (Road Layer)
-//         for (let y = 0; y < rows; y++) {
-//             for (let x = 0; x < cols; x++) {
-//                 // Рисуем сетку дорог каждые 5 клеток
-//                 if (x % 5 === 0 || y % 5 === 0 || x === midX || y === midY) {
-//                     grid[y][x] = { terrain: 'road', height: 1, content: null };
-//                 } else {
-//                     grid[y][x] = { terrain: 'stone', height: 1, content: null };
-//                 }
-//             }
-//         }
-//
-//         // 2. СПЕЦ-ЗДАНИЯ (Центр и Храм)
-//         // Мэрия (3x3 в центре)
-//         this.drawBuilding(grid, midX - 1, midY - 1, 3, 3, { obj: 'town_hall', height: 1.5 });
-//
-//         // Храм (3x3 в случайном месте неподалеку от центра)
-//         const templeX = midX + (Math.random() > 0.5 ? 6 : -8);
-//         const templeY = midY + (Math.random() > 0.5 ? 6 : -8);
-//         this.drawBuilding(grid, templeX, templeY, 3, 3, { obj: 'temple', height: 1.5 });
-//
-//         // 3. ЖИЛАЯ ЗАСТРОЙКА (Residential)
-//         const step = 5;
-//         for (let y = 1; y < rows; y += step) {
-//             for (let x = 1; x < cols; x += step) {
-//
-//                 // Пропускаем, если это центральная дорога или уже занято спец-зданием
-//                 if (grid[y][x].terrain === 'road' || grid[y][x].content) continue;
-//
-//                 // Плотность застройки через coef
-//                 if (Math.random() > 0.4 * coef) continue;
-//
-//                 // Рандомим размер обычного дома (от 2х2 до 3х3)
-//                 const w = 2 + Math.floor(Math.random() * 2);
-//                 const h = 2 + Math.floor(Math.random() * 2);
-//
-//                 this.drawBuilding(grid, x, y, w, h, { obj: 'house', height: 1.5 });
-//             }
-//         }
-//
-//         for (let y = 0; y < rows; y++) {
-//             for (let x = 0; x < cols; x++) {
-//                 const cell = grid[y][x];
-//
-//                 // Если клетка — пустой камень (двор/пустырь)
-//                 if (cell.terrain === 'stone' && !cell.content) {
-//                     const roll = Math.random();
-//
-//                     if (roll < 0.1 * coef) {
-//                         // Сажаем дерево
-//                         cell.content = { type: 'obj', obj: 'tree', char: '🌳' };
-//                     } else if (roll < 0.15 * coef) {
-//                         // Ставим ящики или бочки (укрытия)
-//                         cell.content = { type: 'obj', obj: 'crate', char: '📦' };
-//                         cell.height = 1.2; // Низкое укрытие
-//                     } else if (roll < 0.17 * coef) {
-//                         // Ставим фонарь или колодец
-//                         const isWell = Math.random() > 0.5;
-//                         cell.content = {
-//                             type: 'obj',
-//                             obj: isWell ? 'well' : 'lamp',
-//                             char: isWell ? '🕳️' : '🏮'
-//                         };
-//                     }
-//                 }
-//             }
-//         }
-//
-//         return grid;
-//     },
-//
-//     drawBuilding(grid, startX, startY, w, h, params) {
-//         for (let dy = 0; dy < h; dy++) {
-//             for (let dx = 0; dx < w; dx++) {
-//                 const ny = startY + dy;
-//                 const nx = startX + dx;
-//                 if (grid[ny]?.[nx]) {
-//                     grid[ny][nx].content = { type: 'obj', obj: params.obj };
-//                     grid[ny][nx].height = params.height;
-//                     grid[ny][nx].terrain = 'stone'; // Пол внутри
-//                 }
-//             }
-//         }
-//     },
-//
-//     smoothStep(grid, cols, rows) {
-//         const newGrid = JSON.parse(JSON.stringify(grid));
-//         for(let y = 0; y < rows; y++) {
-//             for(let x = 0; x < cols; x++) {
-//                 const walls = tacticalFieldGenerator.countWallNeighbors(grid, x, y, cols, rows);
-//                 if (walls > 4) newGrid[y][x] = 'wall';
-//                 else if (walls < 4) newGrid[y][x] = 'floor';
-//             }
-//         }
-//         return newGrid;
-//     },
-//
-//     countWallNeighbors(grid, x, y, cols, rows) {
-//         let count = 0;
-//         for(let i = -1; i <= 1; i++) {
-//             for(let j = -1; j <= 1; j++) {
-//                 if(i === 0 && j === 0) continue;
-//                 const ny = y + i, nx = x + j;
-//                 if(ny < 0 || nx < 0 || ny >= rows || nx >= cols) count++; // Границы считаем стенами
-//                 else if(grid[ny][nx] === 'wall') count++;
-//             }
-//         }
-//         return count;
-//     },
-//
-//     applyHeightSteps(data, cols, rows) {
-//         // Проходим по сетке и ищем стыки 1 и 2 высоты, вставляем 1.5
-//         for(let y = 1; y < rows - 1; y++) {
-//             for(let x = 1; x < cols - 1; x++) {
-//                 if (data[y][x].height === 1) {
-//                     const hasHighNeighbor = tacticalFieldGenerator.checkNeighborHeight(data, x, y, 2);
-//                     if (hasHighNeighbor) data[y][x].height = 1.5;
-//                 }
-//             }
-//         }
-//     },
-//
-//     findAllCaves(data, cols, rows) {
-//         const caves = [];
-//         const visited = new Set();
-//
-//         for (let y = 0; y < rows; y++) {
-//             for (let x = 0; x < cols; x++) {
-//                 const key = `${x},${y}`;
-//                 if (data[y][x].terrain !== 'stone' && !visited.has(key)) {
-//                     const newCave = mapGenerator.floodFill(data, x, y, visited, cols, rows);
-//                     caves.push(newCave);
-//                 }
-//             }
-//         }
-//         return caves;
-//     },
-//
-//     checkNeighborHeight(data, x, y, targetHeight) {
-//         const dirs = [[0,1],[0,-1],[1,0],[-1,0]];
-//         return dirs.some(d => {
-//             const ny = y + d[1], nx = x + d[0];
-//             return data[ny]?.[nx]?.height === targetHeight;
-//         });
-//     },
-//
-//     floodFill(data, x, y, visited, cols, rows) {
-//         const cave = [];
-//         const stack = [[x, y]];
-//         const key = (tx, ty) => `${tx},${ty}`;
-//
-//         while (stack.length > 0) {
-//             const [cx, cy] = stack.pop();
-//             const k = key(cx, cy);
-//             if (visited.has(k)) continue;
-//
-//             visited.add(k);
-//             cave.push({x: cx, y: cy});
-//
-//             [[0,1],[0,-1],[1,0],[-1,0]].forEach(d => {
-//                 const nx = cx + d[0], ny = cy + d[1];
-//                 if (ny >= 0 && ny < rows && nx >= 0 && nx < cols &&
-//                     data[ny][nx].terrain !== 'stone' && !visited.has(key(nx, ny))) {
-//                     stack.push([nx, ny]);
-//                 }
-//             });
-//         }
-//         return cave;
-//     },
-//
-//     smoothCave(grid, cols, rows) {
-//         // Работаем с копией, чтобы не брать данные из уже измененных клеток в том же цикле
-//         const newGrid = JSON.parse(JSON.stringify(grid));
-//
-//         for (let y = 1; y < rows - 1; y++) {
-//             for (let x = 1; x < cols - 1; x++) {
-//                 let wallCount = 0;
-//                 // Считаем соседей-стен (8 направлений)
-//                 for (let i = -1; i <= 1; i++) {
-//                     for (let j = -1; j <= 1; j++) {
-//                         if (grid[y + i][x + j].terrain === 'stone') wallCount++;
-//                     }
-//                 }
-//
-//                 if (wallCount > 4) {
-//                     newGrid[y][x] = { terrain: 'stone', height: 2, content: {type:'obj', obj:'rock'} };
-//                 } else {
-//                     newGrid[y][x] = { terrain: 'dirt', height: 1, content: null };
-//                 }
-//             }
-//         }
-//         return newGrid;
-//     },
-//
-//     connectAllCaves(grid, caves) {
-//         for (let i = 0; i < caves.length - 1; i++) {
-//             // Берем случайную точку из текущей пещеры и из следующей
-//             const start = caves[i][Math.floor(Math.random() * caves[i].length)];
-//             const end = caves[i + 1][Math.floor(Math.random() * caves[i + 1].length)];
-//
-//             let currX = start.x;
-//             let currY = start.y;
-//
-//             // Простое копание коридора "лесенкой"
-//             while (currX !== end.x || currY !== end.y) {
-//                 if (currX !== end.x) currX += (end.x > currX ? 1 : -1);
-//                 else if (currY !== end.y) currY += (end.y > currY ? 1 : -1);
-//
-//                 grid[currY][currX] = { terrain: 'dirt', height: 1, content: null };
-//             }
-//         }
-//     },
-// };
 
 
 const hexGenUtils = {

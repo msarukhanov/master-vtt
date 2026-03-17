@@ -11,41 +11,63 @@
     width: 260px;
     border-right: 1px solid rgba(255, 255, 255, 0.1);
     overflow-y: auto;
-    background: var(--main-bg);
+    background: var(--bg-main);
     transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     flex-shrink: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 .editor-main #editor-list.short {
     width: 32px;
 }
+#editorList {
+    /*display: flex;*/
+    /*flex-direction: column;*/
+    /*gap: 4px;*/
 
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: calc(100% - 160px);
+    overflow-y: scroll;
+}
+#editorDataTypes {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
 .editor-main #editor-list button {
     width: 100%;
-    padding: 10px;
+    padding: 6px 10px;
     border: none;
-    border-bottom: 1px solid #eee;
+    /*border-bottom: 1px solid var(--gold);*/
     text-align: left;
     cursor: pointer;
     height: auto;
 
     display: flex;
+    align-items: center;
     gap: 6px;
 
-    background: #0f1220;
-    color: #eee;
+    background: var(--bg-panel);
+    color: var(--text-parchment);
 }
+.editor-main #editor-list button * {pointer-events: none;}
 
 .editor-main #editor-list button:hover {
-    background: #f0f0f0;
+    background: var(--gold-dim);
+    color: var(--bg-main);
 }
 
 .editor-main #editor-list button.active {
-    background: var(--active-color);
-    color: white;
+    background: var(--gold);
+    color: var(--bg-main);
 }
 
 .editor-main #editor-list button img {
-    height: 15px;
+    height: 25px;
 }
 
 .editor-main #editor-list .short-list-button {
@@ -56,12 +78,12 @@
     width: 32px;
 }
 
-@media only screen and (max-width: 900px) {
+@media only screen and (max-width: 1023px) {
     .editor-main #editor-list .short-list-button {
         display: block;
     }
     .editor-main #editor-list button:hover {
-        background: #0f1220;
+        /*background: #0f1220;*/
     }
 }
 
@@ -73,6 +95,23 @@
     flex: 1;
     padding: 0 20px 20px;
     overflow-y: auto;
+}
+
+.editor-main #form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.editor-main #avatar, .editor-main #fullheight {
+    /*width: 200px;*/
+    width: 100%;
+    /*height: 300px;*/
+}
+.editor-main #avatar img, .editor-main #fullheight img {
+    /*width: 200px;*/
+    width: 100%;
+    /*height: 300px;*/
 }
 
 .editor-main button {
@@ -96,9 +135,46 @@
 .editor-main button.round {
     border-radius: 50%;
 }
-.editor-main button.del { background: #8e1c1c; border: none; color: #fff; }
-.editor-main button.add { background: #1c6e3d; border: none; color: #fff; }
-.editor-main button.save { background: var(--active-color); border: none; color: #fff; }
+
+.editor-main .actions {
+    margin-bottom: 12px;
+    display: flex;
+    gap: 12px;
+}
+
+.editor-main button.primary {
+    padding: 5px 10px;
+}
+.editor-main button.del {
+    background: #8e1c1c;
+    border: none;
+    /*color: #fff;*/
+    color: var(--text-parchment);
+}
+.editor-main button.empty {
+    background: var(--bg-main);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+}
+.editor-main button.add {
+    background: #1c6e3d;
+    border: none;
+    /*color: #fff;*/
+    color: var(--text-parchment);
+}
+.editor-main #editor-list button.add {
+    background: #1c6e3d;
+    color: var(--text-parchment);
+}
+.editor-main button.save {
+    background: var(--gold);
+    border: none;
+    color: var(--bg-main);
+}
+.editor-main .actions button svg {
+    width: 30px;
+    height: 30px;
+}
 /*.editor-main button.del {*/
     /*border: 1px solid red;*/
     /*background: red;*/
@@ -123,33 +199,64 @@
 
     width: 100%;
     max-width: 100%; /* На мобилках лучше на всю ширину */
-    background: var(--card-bg);
-    border: 1px solid #444;
+    background: var(--bg-input);
+    border: 1px solid var(--gold-dim);
     border-radius: 8px;
-    color: #fff;
-    padding: 12px; /* Увеличил отступы */
-    font-size: 16px; /* Предотвращает авто-зум в iOS/Android */
-    margin-bottom: 16px;
+    /*color: #fff;*/
+    color: var(--text-parchment);
+    /*padding: 12px; !* Увеличил отступы *!*/
+    /*font-size: 16px; !* Предотвращает авто-зум в iOS/Android *!*/
+
+    padding: 8px 12px;
+    font-size: 16px;
+    height: 40px;
+    /*margin-bottom: 16px;*/
+}
+.editor-main select {
+    text-transform: capitalize;
+}
+
+.editor-main input[type="number"] {
+    max-width: 100px;
 }
 
 .editor-main input[type="file"] {
-    width: 200px;
+    /*width: 200px;*/
+    /*background: none;*/
+    /*border: none;*/
+
+    /*width: 200px;*/
+    width: 100%;
     background: none;
     border: none;
+    background: var(--bg-panel);
+    color: var(--bg-panel);
+    /* text-align: center; */
+    margin: 0;
+    border-radius: 0;
 }
 
-.editor-main #avatar {
-    width: 200px;
-    height: 300px;
-}
 
 .editor-main textarea {
     min-height: 120px;
 }
 
 .editor-main .row {
-    margin-bottom: 12px;
+    /*margin-bottom: 12px;*/
     max-width: 360px;
+    color: var(--gold);
+}
+
+.editor-main h2 {
+    margin: 0 0 12px;
+    max-width: 360px;
+    color: var(--gold);
+}
+.editor-main h3 {
+    /*margin-bottom: 12px;*/
+    max-width: 360px;
+    color: var(--gold);
+    margin: 0;
 }
 
 .editor-main .row-cols {
@@ -157,25 +264,38 @@
     gap: 10px;
 }
 
-.editor-main .col.avatar-select {
-    background: var(--card-bg);
-    border: 1px solid #444;
-    border-radius: 8px;
+.editor-main .col {
+    width: 100%;
 }
 
-.editor-main .row-cols .row-cols {
+.editor-main .col.half {
+    width: 50%;
+}
+
+.editor-main .col.avatar-select {
+    background: var(--bg-main);
+    border: 1px solid var(--gold-dim);
+    border-radius: 8px;
+    /*min-width: 200px;*/
+    width: 100%;
+    height: max-content;
+    overflow: hidden;
+}
+
+.editor-main .row-cols .row-rows {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
-
-.editor-main .actions {
-    margin-top: 20px;
+.editor-main .row-cols .row-cols {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+.editor-main .row-cols .row-cols .col {
+    width: 100%;
 }
 
-.editor-main button.primary {
-    padding: 8px 14px;
-}
 
 .editor-main .char-chips {
     display: flex;
@@ -187,7 +307,7 @@
     border: 1px solid darkgreen;
 
     background: rgba(34, 122, 204, 0.1);
-    border: 1px solid var(--active-color);
+    border: 1px solid var(--gold-dim);
     border-radius: 20px; /* Округлые чипсы */
     padding: 6px 6px 6px 12px;
     font-size: 13px;

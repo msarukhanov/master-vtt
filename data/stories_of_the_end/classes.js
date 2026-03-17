@@ -3142,7 +3142,7 @@ gameData.storiesOfTheEnd.classes = [
         faction: "Дополнительно / Уникально",
         type: "assassin",
         tier: 2,
-        id: "chumnoy_doktor_lazarius",
+        id: "chumnoy_doktor_lazarus",
         name: "Чумной доктор (Лазариус)",
         note: "ассасин с магией болезни",
         parent: null
@@ -3151,16 +3151,16 @@ gameData.storiesOfTheEnd.classes = [
         faction: "Дополнительно / Уникально",
         type: "assasin",
         tier: 3,
-        id: "apostol_chumy_lazarius",
+        id: "apostol_chumy_lazarus",
         name: "Апостол Чумы (Лазариус)",
-        parent: "chumnoy_doktor_lazarius"
+        parent: "chumnoy_doktor_lazarus"
     },
 
     {
         faction: "Дополнительно / Уникально",
         type: "tactical",
         tier: 2,
-        id: "chernyy_khramovnik_lazarius",
+        id: "chernyy_khramovnik_lazarus",
         name: "Чёрный храмовник (Лазариус)",
         note: "рыцарь дд через логику",
         parent: null
@@ -3172,14 +3172,14 @@ gameData.storiesOfTheEnd.classes = [
         id: "chernyy_krestonosec",
         name: "Чёрный Крестоносец",
         note: "рыцарь командир",
-        parent: "chernyy_khramovnik_lazarius"
+        parent: "chernyy_khramovnik_lazarus"
     },
 
     {
         faction: "Дополнительно / Уникально",
         type: "mage",
         tier: 2,
-        id: "tkach_zaklinaniy_lazarius",
+        id: "tkach_zaklinaniy_lazarus",
         name: "Ткач заклинаний (Лазариус)",
         note: "заклинатель/маг потока",
         parent: null
@@ -3191,7 +3191,7 @@ gameData.storiesOfTheEnd.classes = [
         id: "tkach_pustoty",
         name: "Ткач Пустоты",
         note: "изменение заклинаний",
-        parent: "tkach_zaklinaniy_lazarius"
+        parent: "tkach_zaklinaniy_lazarus"
     },
     {
         faction: "Дополнительно / Уникально",

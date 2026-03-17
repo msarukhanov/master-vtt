@@ -74,9 +74,9 @@ const generator = {
         const content = Card.make(n, {}, null);
         content.innerHTML += `
             <div class="gen-popup-actions" style="display:flex; gap:10px; justify-content:center;">
-                <button class="add" onclick="generator.confirmSave(event)">${l10n[lang].save}</button>
-                <button class="save" onclick="generator.generateDraft(event)">${l10n[lang].reCreate}</button>
-                <button class="del" onclick="elementById('gen-popup').remove()">${l10n[lang].cancel}</button>
+                <button class="add" data-data='{"type":"click","name":"char-gen-save"}'>${l10n[lang].save}</button>
+                <button class="save" data-data='{"type":"click","name":"char-gen-create"}'>${l10n[lang].reCreate}</button>
+                <button class="del" data-data='{"type":"click","name":"char-gen-cancel"}'>${l10n[lang].cancel}</button>
             </div>
         `;
 
@@ -89,7 +89,8 @@ const generator = {
         if (!this.tempNPC) return;
 
         const n = this.tempNPC;
-        data.characters.push(n);
+        n.created = true;
+        currentSeason.characters.push(n);
 
         // Синхронизация с фракцией
         if (n.factions.length) {

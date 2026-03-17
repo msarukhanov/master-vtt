@@ -6,8 +6,8 @@
     width: 100%;
     max-width: 400px;
     height: 100dvh;
-    background: var(--main-bg);
-    padding: calc(20px + var(--safe-area-top)) 20px;
+    background: var(--bg-main);
+    padding: calc(10px + var(--safe-area-top)) 10px;
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 10px 0 30px rgba(0,0,0,0.5);
@@ -27,23 +27,39 @@
     max-height: 100%;
     padding-top: 6px;
     overflow-y: scroll;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .left-menu-title {
-    margin: 0 0 12px;
+    /*margin: 0 0 12px;*/
     padding: 6px 0 6px 6px;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
     cursor: pointer;
+
+
 }
 
 .left-menu-tab {
-    margin: 0 0 12px;
+    /*margin: 0 0 12px;*/
     padding: 6px 0 6px 6px;
-    font-size: 20px;
+    font-size: 18px;
     border-left: 1px solid var(--main-color);
     cursor: pointer;
     /*background: var(--bg-2);*/
+}
+
+.left-menu-inner .left-menu-title {
+    color: var(--gold);
+}
+
+.main-tab-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .gen-popup-actions {
@@ -57,7 +73,7 @@
     height: 40px;
     border-radius: 8px;
     font-weight: bold;
-    border: 1px solid var(--active-color);
+    border: 1px solid var(--gold-dim);
     background: transparent;
     color: var(--main-color);
 }

@@ -728,6 +728,7 @@ gameData.storiesOfTheEnd.characters = [
         "rank": "heroic"
     },
     {
+        "id": "halidaDancer",
         "group": "ТОРРИНО",
         "name": "Халида \"Танцовщица\"",
         "gender": "f",
@@ -751,6 +752,7 @@ gameData.storiesOfTheEnd.characters = [
         "rank": "heroic"
     },
     {
+        "id": "williamCross",
         "group": "ТОРРИНО",
         "name": "Уильям Кросс ***",
         "gender": "m",
@@ -888,6 +890,7 @@ gameData.storiesOfTheEnd.characters = [
         "rank": "heroic"
     },
     {
+        "id": "mariaBeautiful",
         "group": "КРАУНСБЕРГ",
         "name": "Мария \"Прекрасная\"",
         "gender": "f",
@@ -1153,6 +1156,7 @@ gameData.storiesOfTheEnd.characters = [
         "rank": "heroic"
     },
     {
+        "id": "antuanetta",
         "group": "ДЕ ЛИС",
         "name": "Антуанетта д‘Эйл (Великая Кутюрье)",
         "gender": "f",
@@ -1619,6 +1623,7 @@ gameData.storiesOfTheEnd.characters = [
         "rank": "heroic"
     },
     {
+        "id": "ladyMinerva",
         "group": "КЕЛЕБРИОН",
         "name": "Леди Минерва",
         "gender": "f",
@@ -2124,6 +2129,7 @@ gameData.storiesOfTheEnd.characters = [
         "rank": "heroic"
     },
     {
+        "id": "kessyZena",
         "group": "ТУАТА ДЕ АЛЮРА",
         "name": "Кесси Зена",
         "gender": "f",
@@ -2168,6 +2174,7 @@ gameData.storiesOfTheEnd.characters = [
         "rank": "heroic"
     },
     {
+        "id": "ladyAranessa",
         "group": "ТУАТА ДЕ АЛЮРА",
         "name": "Леди Аранесса",
         "gender": "f",
@@ -2280,6 +2287,7 @@ gameData.storiesOfTheEnd.characters = [
         "rank": "heroic"
     },
     {
+        "id": "victorDraconid",
         "group": "ДРАКОНИДЫ",
         "name": "\"Виктор\" Зелёный",
         "gender": "m",
@@ -3406,7 +3414,7 @@ gameData.storiesOfTheEnd.characters = [
     {
         "group": "ЭСТЕБАН",
         "id": "mickyrain",
-        "name": "Микеланджело Сфорце",
+        "name": "Микеланджело \"Рейн\" Сфорце",
         "gender": "m",
         "fate": "Социальная инженерия. Эффективность пропаганды/религии/ военных доктрин увеличена на 25%.",
         "excess": "Кровавый кардинал. Все социальные и политические действия также считаются жреческими и наоборот.",
@@ -3754,7 +3762,7 @@ gameData.storiesOfTheEnd.characters = [
     },
     {
         "group": "ПУСТОШИ",
-        "name": "\"Огнестрел\"",
+        "name": "Альбрехт \"Огнестрел\"",
         "gender": "m",
         "fate": null,
         "excess": null,
@@ -3795,6 +3803,7 @@ gameData.storiesOfTheEnd.characters = [
         "rank": "epic"
     },
     {
+        "id": "pokahontasDraconid",
         "group": "ДРАКОНИДЫ",
         "name": "Покахонтас Красная",
         "gender": "f",
@@ -3816,6 +3825,7 @@ gameData.storiesOfTheEnd.characters = [
         "rank": "epic"
     },
     {
+        "id": "sharizDraconid",
         "group": "ДРАКОНИДЫ",
         "name": "Шариз Синий",
         "gender": "m",
@@ -3837,6 +3847,7 @@ gameData.storiesOfTheEnd.characters = [
         "rank": "epic"
     },
     {
+        "id": "krixiaDraconid",
         "group": "ДРАКОНИДЫ",
         "name": "Криксия Зелёная",
         "gender": "m",
@@ -3858,6 +3869,7 @@ gameData.storiesOfTheEnd.characters = [
         "rank": "epic"
     },
     {
+        "id": "ulrikDraconid",
         "group": "ДРАКОНИДЫ",
         "name": "Веном \"Ульрик\" (Чёрный)",
         "gender": "m",
@@ -3879,6 +3891,7 @@ gameData.storiesOfTheEnd.characters = [
         "rank": "epic"
     },
     {
+        "id": "samaraDraconid",
         "group": "ДРАКОНИДЫ",
         "name": "Белоснежка \"Самара\" Белая",
         "gender": "f",
@@ -3970,7 +3983,7 @@ gameData.storiesOfTheEnd.characters = [
     },
     {
         "group": "ЗВЕРОЛЮДИ",
-        "name": "Жёлтая Лиса",
+        "name": "Кенко Жёлтая Лиса",
         "gender": "m",
         "fate": null,
         "excess": null,
@@ -3990,6 +4003,7 @@ gameData.storiesOfTheEnd.characters = [
         "rank": "epic"
     },
     {
+        "id": "ursulaBear",
         "group": "ЗВЕРОЛЮДИ",
         "name": "Урсула Медведица",
         "gender": "f",
@@ -4011,6 +4025,7 @@ gameData.storiesOfTheEnd.characters = [
         "rank": "epic"
     },
     {
+        "id": "marinaMermaid",
         "group": "ЗВЕРОЛЮДИ",
         "name": "Марина Русалочка",
         "gender": "f",
@@ -4680,6 +4695,7 @@ gameData.storiesOfTheEnd.characters = [
         "rank": "legendary"
     },
     {
+        "id":"parturnaxDraconid",
         "group": "ДРАКОНИДЫ",
         "name": "Партурнакс",
         "gender": "m",
@@ -5590,6 +5606,7 @@ gameData.storiesOfTheEnd.characters2 =  [
         "rank": "heroic"
     },
     {
+        "id": "halidaDancer",
         "group": "ТОРРИНО",
         "name": "Халида \"Танцовщица\"",
         "gender": "f",
@@ -5613,6 +5630,7 @@ gameData.storiesOfTheEnd.characters2 =  [
         "rank": "heroic"
     },
     {
+        "id": "williamCross",
         "group": "ТОРРИНО",
         "name": "Уильям Кросс ***",
         "gender": "m",
@@ -5750,6 +5768,7 @@ gameData.storiesOfTheEnd.characters2 =  [
         "rank": "heroic"
     },
     {
+        "id": "mariaBeautiful",
         "group": "КРАУНСБЕРГ",
         "name": "Мария \"Прекрасная\"",
         "gender": "f",
@@ -6015,6 +6034,7 @@ gameData.storiesOfTheEnd.characters2 =  [
         "rank": "heroic"
     },
     {
+        "id": "antuanetta",
         "group": "ДЕ ЛИС",
         "name": "Антуанетта д‘Эйл (Великая Кутюрье)",
         "gender": "f",
@@ -6481,6 +6501,7 @@ gameData.storiesOfTheEnd.characters2 =  [
         "rank": "heroic"
     },
     {
+        "id": "ladyMinerva",
         "group": "КЕЛЕБРИОН",
         "name": "Леди Минерва",
         "gender": "f",
@@ -6986,6 +7007,7 @@ gameData.storiesOfTheEnd.characters2 =  [
         "rank": "heroic"
     },
     {
+        "id": "kessyZena",
         "group": "ТУАТА ДЕ АЛЮРА",
         "name": "Кесси Зена",
         "gender": "f",
@@ -7030,6 +7052,7 @@ gameData.storiesOfTheEnd.characters2 =  [
         "rank": "heroic"
     },
     {
+        "id": "ladyAranessa",
         "group": "ТУАТА ДЕ АЛЮРА",
         "name": "Леди Аранесса",
         "gender": "f",
@@ -8657,6 +8680,7 @@ gameData.storiesOfTheEnd.characters2 =  [
         "rank": "epic"
     },
     {
+        "id": "pokahontasDraconid",
         "group": "ДРАКОНИДЫ",
         "name": "Покахонтас Красная",
         "gender": "f",
@@ -8678,6 +8702,7 @@ gameData.storiesOfTheEnd.characters2 =  [
         "rank": "epic"
     },
     {
+        "id": "sharizDraconid",
         "group": "ДРАКОНИДЫ",
         "name": "Шариз Синий",
         "gender": "m",
@@ -8699,6 +8724,7 @@ gameData.storiesOfTheEnd.characters2 =  [
         "rank": "epic"
     },
     {
+        "id": "krixiaDraconid",
         "group": "ДРАКОНИДЫ",
         "name": "Криксия Зелёная",
         "gender": "m",
@@ -8720,6 +8746,7 @@ gameData.storiesOfTheEnd.characters2 =  [
         "rank": "epic"
     },
     {
+        "id": "ulrikDraconid",
         "group": "ДРАКОНИДЫ",
         "name": "Веном \"Ульрик\" (Чёрный)",
         "gender": "m",
@@ -8741,6 +8768,7 @@ gameData.storiesOfTheEnd.characters2 =  [
         "rank": "epic"
     },
     {
+        "id": "samaraDraconid",
         "group": "ДРАКОНИДЫ",
         "name": "Белоснежка \"Самара\" Белая",
         "gender": "f",
@@ -8832,7 +8860,7 @@ gameData.storiesOfTheEnd.characters2 =  [
     },
     {
         "group": "ЗВЕРОЛЮДИ",
-        "name": "Жёлтая Лиса",
+        "name": "Кенко Жёлтая Лиса",
         "gender": "m",
         "fate": null,
         "excess": null,
@@ -8852,6 +8880,7 @@ gameData.storiesOfTheEnd.characters2 =  [
         "rank": "epic"
     },
     {
+        "id": "ursulaBear",
         "group": "ЗВЕРОЛЮДИ",
         "name": "Урсула Медведица",
         "gender": "f",
@@ -8873,6 +8902,7 @@ gameData.storiesOfTheEnd.characters2 =  [
         "rank": "epic"
     },
     {
+        "id": "marinaMermaid",
         "group": "ЗВЕРОЛЮДИ",
         "name": "Марина Русалочка",
         "gender": "f",
@@ -9542,6 +9572,7 @@ gameData.storiesOfTheEnd.characters2 =  [
         "rank": "legendary"
     },
     {
+        "id":"parturnaxDraconid",
         "group": "ДРАКОНИДЫ",
         "name": "Партурнакс",
         "gender": "m",

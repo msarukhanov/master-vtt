@@ -1,0 +1,203 @@
+/*#dialog-overlay {*/
+    /*position: absolute;*/
+    /*top: 75px;*/
+    /*left: 50%;*/
+    /*transform: translateX(-50%);*/
+    /*width: 100%;*/
+    /*max-width: calc(100vw - 24px);*/
+    /*height: calc(100vh - 90px);*/
+    /*vertical-align: top;*/
+    /*background: #222;*/
+    /*border: 3px solid #4a3b2b;*/
+    /*border-radius: 10px;*/
+    /*box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);*/
+    /*display: flex;*/
+    /*z-index: 10000;*/
+    /*color: #e0d5b1;*/
+    /*font-family: 'Georgia', serif;*/
+
+/*}*/
+
+/*.dialog-window {*/
+    /*display: flex;*/
+    /*flex-wrap: wrap;*/
+/*}*/
+
+/*.npc-portrait {*/
+    /*width: 200px;*/
+    /*border-right: 2px solid #4a3b2b;*/
+    /*display: flex;*/
+    /*flex-direction: column;*/
+    /*align-items: center;*/
+    /*padding: 15px;*/
+    /*background: rgba(0,0,0,0.3);*/
+/*}*/
+
+/*.npc-portrait img {*/
+    /*width: 100%;*/
+    /*!*width: 120px;*!*/
+    /*!*height: 120px;*!*/
+    /*border: 2px solid #7d6b4a;*/
+    /*border-radius: 5px;*/
+    /*object-fit: cover;*/
+    /*margin-bottom: 10px;*/
+/*}*/
+
+/*#npc-name {*/
+    /*font-weight: bold;*/
+    /*font-size: 1.2em;*/
+    /*color: #ffd700;*/
+    /*text-shadow: 1px 1px 2px black;*/
+/*}*/
+
+/*.dialog-content {*/
+    /*flex: 1;*/
+    /*padding: 20px;*/
+    /*display: flex;*/
+    /*flex-direction: column;*/
+    /*!*justify-content: space-between;*!*/
+/*}*/
+
+/*#dialog-text {*/
+    /*font-size: 1.1em;*/
+    /*line-height: 1.4;*/
+    /*margin-bottom: 20px;*/
+    /*font-style: italic;*/
+/*}*/
+
+/*#dialog-options {*/
+    /*display: grid;*/
+    /*grid-template-columns: 1fr 1fr;*/
+    /*gap: 10px;*/
+/*}*/
+
+/*@media only screen and (max-width: 799px) {*/
+    /*#dialog-options {*/
+        /*display: grid;*/
+        /*grid-template-columns: 1fr;*/
+        /*gap: 10px;*/
+    /*}*/
+/*}*/
+
+/*.opt-btn {*/
+    /*background: #3a2e21;*/
+    /*border: 1px solid #ffd700;*/
+    /*color: #e0d5b1;*/
+    /*padding: 8px;*/
+    /*text-align: left;*/
+    /*cursor: pointer;*/
+    /*transition: 0.2s;*/
+/*}*/
+
+/*.opt-btn:hover {*/
+    /*background: #5d4a35;*/
+    /*color: white;*/
+/*}*/
+
+/*.interaction-hidden { display: none !important; }*/
+
+/* interactions.css — Dark Fantasy Edition (Full Restore) */
+
+#dialog-overlay {
+    position: absolute;
+    top: 75px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: calc(100vw - 10px);
+    height: calc(100vh - 90px);
+    vertical-align: top;
+    background: var(--bg-main);
+    backdrop-filter: var(--blur);
+    border: var(--border-gold);
+    border-radius: 10px;
+    box-shadow: var(--shadow-heavy);
+    display: flex;
+    z-index: 9999;
+    color: var(--text-parchment);
+    font-family: 'Georgia', serif;
+}
+
+.dialog-window {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.npc-portrait {
+    width: 200px;
+    border-right: 2px solid var(--gold-dim);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    background: rgba(0,0,0,0.3);
+}
+
+.npc-portrait img {
+    width: 100%;
+    border: 2px solid var(--gold-dim);
+    border-radius: 5px;
+    object-fit: cover;
+    margin-bottom: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+}
+
+#npc-name {
+    font-weight: bold;
+    font-size: 1.2em;
+    color: var(--gold);
+    text-shadow: 1px 1px 4px black;
+    text-align: center;
+}
+
+.dialog-content {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+#dialog-text {
+    font-size: 1.1em;
+    line-height: 1.4;
+    margin-bottom: 20px;
+    font-style: italic;
+    color: var(--text-parchment);
+}
+
+#dialog-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+@media only screen and (max-width: 799px) {
+    #dialog-options {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}
+
+.opt-btn {
+    background: var(--bg-panel);
+    border: 1px solid var(--gold-dim);
+    color: var(--text-parchment);
+    padding: 12px;
+    text-align: left;
+    cursor: pointer;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: var(--br-slot);
+}
+
+.opt-btn:hover {
+    background: var(--bg-accent);
+    color: var(--gold);
+    border-color: var(--gold);
+    transform: translateX(5px);
+}
+
+.interaction-hidden { display: none !important; }
+

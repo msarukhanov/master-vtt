@@ -1,3 +1,264 @@
+gameData.storiesOfTheEnd.regions = [
+    {
+        "name": "Священная Империя",
+        "tier": 1,
+        "id": "holyEmpire",
+        "description": "Империя, появившаяся после окончательного распада Эльвинарской Империи около 700 лет назад, после того, как Леонард из Лоренции, в будущем создавший и возглавивший Пантеон Света, вознёсшись как Бог, провёл объединительный поход на северо-западном направлении. Является развитым во всех направлениях государством, доминирующим в своём регионе.",
+        "territory": true,
+    },
+    {
+        "name": "Нетерил",
+        "id": "netheril",
+        "tier": 1,
+        "type": "страна",
+        "description": "Единственная в мире республика, управляемая Сенатом и Канцлером. Официально это один огромный город, однако, путем политического и экономического давления продвигает свои интересы везде, куда может доплыть её флот или дойти её разведка.",
+        "territory": true,
+    },
+    {
+        "name": "Замёрзший Север",
+        "id": "frozenNorth",
+        "tier": 1,
+        "type": "страна",
+        "description": "",
+        "territory": true,
+    },
+    {
+        "name": "Священный Лес",
+        "id": "sacredForest",
+        "tier": 1,
+        "type": "страна",
+        "description": "",
+        "territory": true,
+    },
+    {
+        "name": "Туата Ди Алюра",
+        "id": "tuataDeAlyura",
+        "tier": 1,
+        "type": "страна",
+        "description": "",
+        "territory": true,
+    },
+    {
+        "name": "Лазурная Империя",
+        "id": "azureEmpire",
+        "tier": 1,
+        "type": "страна",
+        "description": "",
+        "territory": true,
+    },
+    {
+        "name": "Пустыня Лахра",
+        "id": "lahraDesert",
+        "tier": 1,
+        "type": "страна",
+        "description": "",
+        "territory": true,
+    },
+    {
+        "name": "Зоркан",
+        "id": "zorkan",
+        "tier": 1,
+        "type": "страна",
+        "parent": null,
+        "territory": true,
+    },
+    {
+        "name": "Флоты Пиратов",
+        "id": "pirateFleets",
+        "alignment": "Тьма",
+        "tier": 1,
+        "type": "армия",
+        "parent": null,
+        "description": "",
+        "territory": true,
+        "color": "#ff5c1b",
+        "members": [
+            "antonia",
+            "lydia",
+            "raulalvares",
+            "erica",
+            "marianna"
+        ]
+    },
+
+    {
+        "name": "Южные Моря",
+        "id": "southernSeas",
+        "tier": 1,
+        "type": "страна",
+        "territory": true,
+        "description": "",
+    },
+    {
+        "name": "Внутреннее Море",
+        "id": "innerSea",
+        "tier": 1,
+        "type": "море",
+        "territory": true,
+        "description": "",
+    },
+    {
+        "name": "Центральный Океан",
+        "id": "centralOcean",
+        "tier": 1,
+        "type": "море",
+        "territory": true,
+        "description": "",
+    },
+    {
+        "name": "Королевство Драконидов",
+        "id": "drakonidKingdom",
+        "tier": 1,
+        "type": "страна",
+        "description": "",
+        "territory": true,
+    },
+    {
+        "name": "Пустоши",
+        "id": "wasteland",
+        "alignment": "Тьма",
+        "tier": 1,
+        "type": "страна",
+        "description": "",
+        "territory": true,
+    },
+
+    {
+        "name": "Королевство Демонов",
+        "id": "demonKingdom",
+        "alignment": "Нейтралитет",
+        "tier": 1,
+        "type": "страна",
+        "territory": true,
+        "description": ""
+    },
+    {
+        "name": "Тирания Осквернителя",
+        "id": "defilersTyranny",
+        "tier": 1,
+        "type": "страна",
+        "territory": true,
+        "description": ""
+    },
+    {
+        "name": "Королевство Чумы",
+        "id": "plagueKingdom",
+        "tier": 1,
+        "type": "церковь",
+        "territory": true,
+        "description": ""
+    },
+    {
+        "name": 'Империя Смерти',
+        "id": 'deathEmpire',
+        "tier": 1,
+        "type": 'страна',
+        "territory": true,
+        "description": ''
+    },
+];
+
+gameData.storiesOfTheEnd.cultures = [
+    {
+        "name": "Священная Империя",
+        "tier": 1,
+        "id": "sacredImperial",
+        "description": "",
+        "color": "#ffbf60"
+    },
+    {
+        "name": "Лорентийская",
+        "id": "lawrencian",
+        "tier": 1,
+        "description": "",
+        "color": "#0004e7"
+    },
+    {
+        "name": "Валенсийская",
+        "id": "valencian",
+        "tier": 1,
+        "description": "",
+        "color": "#e7990d"
+    },
+    {
+        "name": "Лахра",
+        "id": "lahrian",
+        "tier": 1,
+        "description": "",
+        "color": "#e7979f"
+    },
+    {
+        "name": "Изидийская",
+        "id": "isidian",
+        "tier": 1,
+        "description": "",
+        "color": "#e7e256"
+    },
+    {
+        "name": "АльСаллах",
+        "id": "alsallah",
+        "tier": 1,
+        "description": "",
+        "color": "#e77027"
+    },
+    {
+        "name": "Северяне",
+        "id": "northman",
+        "tier": 1,
+        "description": "",
+        "color": "#a2e0ff"
+    },
+    {
+        "name": "Эльвинар",
+        "id": "elvinar",
+        "tier": 1,
+        "description": "",
+        "color": "#0cff00"
+    },
+    {
+        "name": "Путь Алюры",
+        "id": "pathAlyura",
+        "tier": 1,
+        "description": "",
+        "color": "#1aa9ff"
+    },
+    {
+        "name": "Орда",
+        "id": "horde",
+        "tier": 1,
+        "description": "",
+        "color": "#ff2b06"
+    },
+    {
+        "name": "Корё",
+        "id": "Koryo",
+        "tier": 1,
+        "description": "",
+        "color": "#12ffff"
+    },
+    {
+        "name": "Ниппон",
+        "id": "nippon",
+        "tier": 1,
+        "description": "",
+        "color": "#040e4a"
+    },
+    {
+        "name": "Чонгу",
+        "id": "chongu",
+        "tier": 1,
+        "description": "",
+        "color": "#00ff97"
+    },
+    {
+        "name": "Харджари",
+        "id": "harjari",
+        "tier": 1,
+        "description": "",
+        "color": "#d9ff2e"
+    },
+];
+
 gameData.storiesOfTheEnd.factions = [
     {
         "alignment": "Свет",
@@ -35,7 +296,7 @@ gameData.storiesOfTheEnd.factions = [
         "name": "Святая Инквизиция",
         "longCampaign": "",
         "globalCampaign": "",
-        "description": "Святая Инквизиция под прямым руководством Эммы, Искупления Света",
+        "description": "Святая Инквизиция под руководством Святого Престола",
         "quests": [],
         "members": [
             "quentin",
@@ -97,7 +358,7 @@ gameData.storiesOfTheEnd.factions = [
         "alignment": "Свет",
         "parent": "imperialMageGuild",
         "tier": 3,
-        "id": "shannara_confederation",
+        "id": "shannaraConfederation",
         "name": "Конфедерация Шаннара",
         "longCampaign": "",
         "globalCampaign": "",
@@ -109,7 +370,7 @@ gameData.storiesOfTheEnd.factions = [
         "alignment": "Нейтралитет",
         "parent": "imperialMageGuild",
         "tier": 3,
-        "id": "eternal_flame_church",
+        "id": "eternalFlameChurch",
         "name": "Церковь Вечного Пламени",
         "longCampaign": "",
         "globalCampaign": "",
@@ -121,7 +382,7 @@ gameData.storiesOfTheEnd.factions = [
         "alignment": "Нейтралитет",
         "parent": "imperialMageGuild",
         "tier": 3,
-        "id": "sons_of_ahriman",
+        "id": "sonsOfAhriman",
         "name": "Сыны Аримана",
         "longCampaign": "",
         "globalCampaign": "",
@@ -136,7 +397,7 @@ gameData.storiesOfTheEnd.factions = [
         "alignment": "Свет",
         "parent": "holyThrone",
         "tier": 2,
-        "id": "imperial_alchemist_guild",
+        "id": "imperialAlchemistGuild",
         "name": "Имперская Гильдия Алхимиков",
         "longCampaign": "",
         "globalCampaign": "",
@@ -150,7 +411,7 @@ gameData.storiesOfTheEnd.factions = [
         "alignment": "Свет",
         "parent": "holyThrone",
         "tier": 2,
-        "id": "imperial_archaeologist_guild",
+        "id": "imperialArchaeologistGuild",
         "name": "Имперская Гильдия Археологов",
         "longCampaign": "",
         "globalCampaign": "",
@@ -169,13 +430,6 @@ gameData.storiesOfTheEnd.factions = [
         "description": "Империя, появившаяся после окончательного распада Эльвинарской Империи около 700 лет назад, после того, как Леонард из Лоренции, в будущем создавший и возглавивший Пантеон Света, вознёсшись как Бог, провёл объединительный поход на северо-западном направлении. Является развитым во всех направлениях государством, доминирующим в своём регионе.",
         "quests": [],
         "territory": true,
-        "map": {
-            "x": 1050,
-            "y": 400,
-            "w": 1500,
-            "h": 1150,
-            "s": 1
-        },
         "members": [
             "alexandro",
             "cassandra",
@@ -316,13 +570,6 @@ gameData.storiesOfTheEnd.factions = [
         "description": "Единственная в мире республика, управляемая Сенатом и Канцлером. Официально это один огромный город, однако, путем политического и экономического давления продвигает свои интересы везде, куда может доплыть её флот или дойти её разведка.",
         "territory": true,
         "color": "#bf06ac",
-        "map": {
-            "x": 2047,
-            "y": 1622,
-            "w": 91,
-            "h": 114,
-            "s": 1
-        },
         "members": [
             "jaheira",
             "victoriaallenshtain",
@@ -385,7 +632,7 @@ gameData.storiesOfTheEnd.factions = [
         "name": "Разведка Республики Лоренция",
         "id": "republicIntelligence",
         "alignment": "Свет",
-        "image": "republicIntelligence.jpg",
+        "tier": 2,
         "type": "армия",
         "parent": "lawrencianRepublic",
         "description": "Тысячи лет истории и постоянного совершенствования вывели уровень добычи информации, диверсий и спец.операций на недостижимый для конкурентов уровень.",
@@ -472,17 +719,10 @@ gameData.storiesOfTheEnd.factions = [
         "tier": 2,
         "id": "duchyDeLys",
         "type": "княжество",
-        "parent": "holy_empire",
+        "parent": "holyEmpire",
         "description": "Страна Цветов с момента основания одноимённого герцогства, часть Священной Империи.",
         "territory": true,
         "color": "#2773e7",
-        "map": {
-            "x": 1380,
-            "y": 785,
-            "w": 450,
-            "h": 340,
-            "s": 1
-        },
         "members": [
             "vivienLeGrace",
             "avrilLeGrace",
@@ -519,7 +759,6 @@ gameData.storiesOfTheEnd.factions = [
         "alignment": "Нейтралитет",
         "tier": 3,
         "id": "leFleurDeGrace",
-        "image": "",
         "type": "отряд",
         "territory": false,
         "parent": "deLysCrossbows",
@@ -539,7 +778,7 @@ gameData.storiesOfTheEnd.factions = [
         "tier": 2,
         "id": "duchyCrownsberg",
         "type": "княжество",
-        "parent": "holy_empire",
+        "parent": "holyEmpire",
         "description": "Столичное герцогство Священной Империи.",
         "territory": true,
         "color": "#ffd12f",
@@ -590,7 +829,7 @@ gameData.storiesOfTheEnd.factions = [
         "tier": 2,
         "id": "duchyKelebrion",
         "type": "княжество",
-        "parent": "holy_empire",
+        "parent": "holyEmpire",
         "description": "Герцогство Священной Империи, где расположены Верховная Семинария и прочие духовные столпы церкви Света.",
         "territory": true,
         "color": "#ff980f",
@@ -627,7 +866,7 @@ gameData.storiesOfTheEnd.factions = [
         "name": "Семинария Священной Империи",
         "alignment": "Свет",
         "tier": 3,
-        "id": "holy_empireSeminary",
+        "id": "holyEmpireSeminary",
         "type": "орден",
         "parent": "duchyKelebrion",
         "description": "",
@@ -639,9 +878,10 @@ gameData.storiesOfTheEnd.factions = [
         "tier": 2,
         "id": "duchyRichter",
         "type": "княжество",
-        "parent": "holy_empire",
+        "parent": "holyEmpire",
         "description": "Герцогство Священной Империи, где расположены конные заводы и тренировочные лагеря Имперской Армии.",
         "territory": true,
+        "color": "#a8a7ac",
         "map": {
             "x": 1231,
             "y": 460,
@@ -674,9 +914,17 @@ gameData.storiesOfTheEnd.factions = [
         "tier": 2,
         "id": "duchyViRen",
         "type": "княжество",
-        "parent": "holy_empire",
+        "parent": "holyEmpire",
         "description": "Герцогство Священной Империи, где расположены основные металлургические и магические производства Империи, а также одна из Башен Магов (западная).",
         "territory": true,
+        "color": "#6c6b6e",
+        "map": {
+            "x": 1231,
+            "y": 460,
+            "w": 326,
+            "h": 406,
+            "s": 1
+        },
         "members": [
             "clausvirren",
             "alexandervonmayer",
@@ -713,7 +961,7 @@ gameData.storiesOfTheEnd.factions = [
         "tier": 2,
         "id": "duchyTorino",
         "type": "княжество",
-        "parent": "holy_empire",
+        "parent": "holyEmpire",
         "description": "Герцогство Священной Империи, где расположены основные развлекательные и торговые Гильдии Империи, а также Гильдия Авантюристов.",
         "territory": true,
         "color": "#e7b3d8",
@@ -770,7 +1018,7 @@ gameData.storiesOfTheEnd.factions = [
         "tier": 2,
         "id": "duchyGrimwood",
         "type": "княжество",
-        "parent": "holy_empire",
+        "parent": "holyEmpire",
         "description": "Герцогство Священной Империи, расположенное на болотах. Производит основные лекарства для Империи и других стран, также является бывшим герцогством Эльвинарской Империи и хранит древнее эльфийское наследие, специально переделанное для людей-аристократов Темнолесья. В прошлом является родиной величайших некромантов.",
         "territory": true,
         "color": "#00710d",
@@ -869,13 +1117,6 @@ gameData.storiesOfTheEnd.factions = [
         "description": "Королевство, появившаяся после окончательного распада Эльвинарской Империи около 700 лет назад, находящееся в Священном Лесу.",
         "territory": true,
         "color": "#00ff6b",
-        "map": {
-            "x": 2080,
-            "y": 273,
-            "w": 606,
-            "h": 558,
-            "s": 1
-        },
         "members": [
             "ladyRosalia",
             "dayana",
@@ -932,7 +1173,7 @@ gameData.storiesOfTheEnd.factions = [
         "name": "Дом Фа'й'да'йэн",
         "id": "duchyFaidayen",
         "alignment": "Нейтралитет",
-        "image": "faidayen.jpg",
+        "tier": 2,
         "type": "княжество",
         "parent": "elvinarKingdom",
         "description": "звёздные",
@@ -978,6 +1219,8 @@ gameData.storiesOfTheEnd.factions = [
         "tier": 2,
         "type": "церковь",
         "parent": "elvinarKingdom",
+        "territory": true,
+        "color": "#bfd4e7",
         "description": "рыцари",
         "members": [
             "dayana",
@@ -993,13 +1236,7 @@ gameData.storiesOfTheEnd.factions = [
         "type": "страна",
         "description": "",
         "territory": true,
-        "map": {
-            "x": 0,
-            "y": 524,
-            "w": 539,
-            "h": 351,
-            "s": 1
-        },
+        "color": "#0004e7",
         "members": [
             "vilgelmina",
             "albertGold",
@@ -1091,13 +1328,6 @@ gameData.storiesOfTheEnd.factions = [
         "parent": null,
         "description": "",
         "territory": true,
-        "map": {
-            "x": 2653,
-            "y": 807,
-            "w": 664,
-            "h": 669,
-            "s": 1
-        },
         "members": [
             "minsu",
             "jinson",
@@ -1117,6 +1347,7 @@ gameData.storiesOfTheEnd.factions = [
         "tier": 2,
         "type": "клан",
         "parent": "azureEmpire",
+        "territory": true,
         "description": "",
         "members": [
             "minsu",
@@ -1164,6 +1395,7 @@ gameData.storiesOfTheEnd.factions = [
         "alignment": "Нейтралитет",
         "tier": 2,
         "type": "клан",
+        "territory": true,
         "parent": "azureEmpire",
         "description": "Потомки древней фамилии чонгу, ныне ставленники империи ниппон.",
         "members": [
@@ -1213,6 +1445,7 @@ gameData.storiesOfTheEnd.factions = [
         "tier": 2,
         "type": "клан",
         "parent": "azureEmpire",
+        "territory": true,
         "description": "",
         "members": [
             "kenjiemperor",
@@ -1263,13 +1496,7 @@ gameData.storiesOfTheEnd.factions = [
         "parent": null,
         "description": "",
         "territory": true,
-        "map": {
-            "x": 915,
-            "y": 284,
-            "w": 236,
-            "h": 322,
-            "s": 1
-        },
+        "color": "#2773e7",
         "members": [
             "famke",
             "floki",
@@ -1285,6 +1512,7 @@ gameData.storiesOfTheEnd.factions = [
         "parent": "danheimKingdom",
         "description": "",
         "territory": true,
+        "color": "#0ae7e2",
         "map": {
             "x": 1232,
             "y": 157,
@@ -1365,6 +1593,7 @@ gameData.storiesOfTheEnd.factions = [
         "parent": "sonsOfMalice",
         "description": "",
         "territory": true,
+        "color": "#ff8377",
         "map": {
             "x": 1051,
             "y": 1535,
@@ -1387,6 +1616,7 @@ gameData.storiesOfTheEnd.factions = [
         "type": "страна",
         "description": "",
         "territory": true,
+        "color": "#cce77e",
         "map": {
             "x": 1276,
             "y": 1868,
@@ -1407,6 +1637,7 @@ gameData.storiesOfTheEnd.factions = [
         "parent": null,
         "description": "",
         "territory": true,
+        "color": "#224b9d",
         "map": {
             "x": 1947,
             "y": 1791,
@@ -1439,13 +1670,6 @@ gameData.storiesOfTheEnd.factions = [
         "description": "Герцогство Вампиров",
         "territory": true,
         "color": "#ff0000",
-        "map": {
-            "x": 2287,
-            "y": 797,
-            "w": 412,
-            "h": 570,
-            "s": 1
-        },
         "members": [
             "mickyrain",
             "alexia",
@@ -1475,12 +1699,26 @@ gameData.storiesOfTheEnd.factions = [
         "members": []
     },
     {
+        "name": "Царство Харджари",
+        "id": "harjariKingdom",
+        "alignment": "Нейтралитет",
+        "tier": 2,
+        "type": "страна",
+        "parent": "duchyEsteban",
+        "description": "Царство Ракшасов",
+        "territory": true,
+        "color": "#1dffed",
+        "members": []
+    },
+    {
         "name": "Орда",
         "id": "horde",
         "alignment": "Тьма",
         "tier": 1,
         "type": "страна",
         "parent": null,
+        "territory": true,
+        "color": "#ff7800",
         "description": "",
         "members": [
             "rusya"
@@ -1528,7 +1766,7 @@ gameData.storiesOfTheEnd.factions = [
     },
     {
         "name": "Клан Серого Волка",
-        "id": "ironFuryClan",
+        "id": "grayWolfClan",
         "alignment": "Тьма",
         "tier": 2,
         "type": "клан",
@@ -1565,13 +1803,7 @@ gameData.storiesOfTheEnd.factions = [
         "parent": null,
         "description": "",
         "territory": true,
-        "map": {
-            "x": 552,
-            "y": 1091,
-            "w": 464,
-            "h": 450,
-            "s": 1
-        },
+        "color": "#ff5c1b",
         "members": [
             "antonia",
             "lydia",
@@ -1627,15 +1859,8 @@ gameData.storiesOfTheEnd.factions = [
         "tier": 1,
         "type": "страна",
         "parent": null,
-        "description": "альянс",
         "territory": true,
-        "map": {
-            "x": 1961,
-            "y": 1971,
-            "w": 727,
-            "h": 506,
-            "s": 1
-        },
+        "description": "альянс",
         "members": [
             "ricky",
             "samueldk",
@@ -1658,13 +1883,7 @@ gameData.storiesOfTheEnd.factions = [
         "parent": "eternalNightAlliance",
         "description": "демонические",
         "territory": true,
-        "map": {
-            "x": 2424,
-            "y": 2238,
-            "w": 159,
-            "h": 84,
-            "s": 1
-        },
+        "color": "#ff91f5",
         "members": [
             "virna",
             "miliel"
@@ -1679,13 +1898,7 @@ gameData.storiesOfTheEnd.factions = [
         "parent": "eternalNightAlliance",
         "description": "морские",
         "territory": true,
-        "map": {
-            "x": 2161,
-            "y": 2025,
-            "w": 159,
-            "h": 138,
-            "s": 1
-        },
+        "color": "#004f00",
         "members": [
             "samueldk",
             "eleniel"
@@ -1700,13 +1913,7 @@ gameData.storiesOfTheEnd.factions = [
         "parent": "eternalNightAlliance",
         "description": "",
         "territory": true,
-        "map": {
-            "x": 2588,
-            "y": 1964,
-            "w": 110,
-            "h": 98,
-            "s": 1
-        },
+        "color": "#825eff",
         "members": [
             "nimormage",
             "telmael"
@@ -1771,13 +1978,7 @@ gameData.storiesOfTheEnd.factions = [
         "parent": "eternalNightAlliance",
         "description": "Флот, собранный Рики Ночесом, Королём Мёрвого Моря, и покинувший основной пиратский флот. Враждует с Королевством Пиратов и Лоренцией. На данный момент уже больше похож на межконтинентальный синдикат, занимаясь в основном торговлей абсолютно всем, чем можно и нельзя, подкупая абсолютно всех, кого только можно. Базируются в Джакарте.",
         "territory": true,
-        "map": {
-            "x": 1965,
-            "y": 2294,
-            "w": 150,
-            "h": 179,
-            "s": 1
-        },
+        "color": "#244f4b",
         "members": [
             "raulalvares",
             "ricky",
@@ -1815,13 +2016,7 @@ gameData.storiesOfTheEnd.factions = [
         "parent": "eternalNightAlliance",
         "description": "",
         "territory": true,
-        "map": {
-            "x": 2809,
-            "y": 1928,
-            "w": 320,
-            "h": 426,
-            "s": 1
-        },
+        "color": "#fce5f7",
         "members": [
             "nikki"
         ]
@@ -1916,5 +2111,124 @@ gameData.storiesOfTheEnd.factions = [
         "members": [
             "quentin"
         ]
+    },
+
+    {
+        "name": "Королевство Демонов",
+        "id": "demonKingdom",
+        "alignment": "Нейтралитет",
+        "tier": 1,
+        "type": "страна",
+        "territory": true,
+        "color": "#d5010e",
+        "description": ""
+    },
+    {
+        "name": "Культ Гнева",
+        "id": "furyCult",
+        "tier": 2,
+        "type": "церковь",
+        "parent": "demonKingdom",
+        "description": ""
+    },
+    {
+        "name": "Культ Раздора",
+        "id": "discordCult",
+        "tier": 2,
+        "type": "церковь",
+        "parent": "demonKingdom",
+        "description": ""
+    },
+    {
+        "name": "Культ Чревоугодия",
+        "id": "gluttonyCult",
+        "tier": 2,
+        "type": "церковь",
+        "parent": "demonKingdom",
+        "description": ""
+    },
+    {
+        "name": "Культ Алчности",
+        "id": "аvariceCult",
+        "tier": 2,
+        "type": "церковь",
+        "parent": "demonKingdom",
+        "description": ""
+    },
+    {
+        "name": "Культ Обмана",
+        "id": "deceptionCult",
+        "tier": 2,
+        "type": "церковь",
+        "parent": "demonKingdom",
+        "description": ""
+    },
+    {
+        "name": "Тирания Осквернителя",
+        "id": "defilersTyranny",
+        "tier": 1,
+        "type": "страна",
+        "territory": true,
+        "color": "#62617f",
+        "description": ""
+    },
+    {
+        "name": "Альянс Чернокнижников",
+        "id": "warlockAliance",
+        "tier": 2,
+        "type": "орден",
+        "parent": "defilersTyranny",
+        "description": ""
+    },
+    {
+        "name": "Лаборатории Бездушного",
+        "id": "soullessLaboratories",
+        "tier": 2,
+        "type": "организация",
+        "parent": "defilersTyranny",
+        "description": ""
+    },
+    {
+        "name": "Культ Страсти",
+        "id": "passionCult",
+        "tier": 1,
+        "type": "церковь",
+        "territory": true,
+        "color": "#ff91f5",
+        "description": ""
+    },
+    {
+        "name": "Королевство Чумы",
+        "id": "plagueKingdom",
+        "tier": 1,
+        "type": "церковь",
+        "territory": true,
+        "color": "#65713d",
+        "description": ""
+    },
+    {
+        "name": 'Империя Смерти',
+        "id": 'deathEmpire',
+        "tier": 1,
+        "type": 'страна',
+        "territory": true,
+        "color": "#1d4521",
+        "description": ''
+    },
+    {
+        "name": 'Стража Смерти',
+        "id": 'deathEmpire',
+        "tier": 2,
+        "type": 'орден',
+        "territory": true,
+        "description": ''
+    },
+    {
+        "name": 'Ханство Кемаля',
+        "id": 'kemalKhanate',
+        "tier": 2,
+        "type": 'армия',
+        "territory": true,
+        "description": ''
     }
 ];

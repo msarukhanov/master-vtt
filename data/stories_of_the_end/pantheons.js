@@ -1,6 +1,145 @@
+gameData.storiesOfTheEnd.religions = [
+    {
+        "id": "pantheonSun",
+        "name": "Пантеон Солнца",
+        "color": "#ffbf60"
+    },
+    {
+        "id": "emmangelists",
+        "name": "Эммангелистская церковь",
+    },
+    {
+        "id": "ivynion",
+        "name": "Церковь Природы",
+    },
+    {
+        "id": "arimania",
+        "name": "Аримания",
+    },
+    {
+        "id": "malaktari",
+        "name": "Малактари",
+    },
+
+    {
+        "id": "pantheonMoon",
+        "name": "Пантеон Луны",
+        "titles": [],
+        "domains": [],
+        "goals": [],
+        "alignment": [],
+        "blessings": [],
+        "description": ""
+    },
+    {
+        "id": "mireska",
+        "name": "Миреска",
+    },
+
+    {
+        "id": "pantheonMountain",
+        "name": "Пантеон Горы",
+    },
+
+    {
+        "id": "pantheonNeutrals",
+        "name": "Нейтральный пантеон",
+        "titles": [],
+        "domains": [],
+        "goals": [],
+        "alignment": [],
+        "blessings": [],
+        "description": ""
+    },
+    {
+        "id": "lukash",
+        "name": "Лукаш",
+        "color": "#48474a"
+    },
+    {
+        "id": "alaxena",
+        "name": "Алаксена",
+    },
+
+    {
+        "id": "ravena",
+        "name": "Альянс Вечной Ночи",
+    },
+    {
+        "id": "ravena",
+        "name": "Равена",
+    },
+    {
+        "id": "drakhiel",
+        "name": "Дракхиэль",
+    },
+    {
+        "id": "laaeral",
+        "name": "Лааэраль",
+    },
+
+    {
+        "id": "erinFaidayen",
+        "name": "Янника",
+    },
+    {
+        "id": "sanguinius",
+        "name": "Сангвиниус",
+    },
+    {
+        "id": "lorelein_dark_moon",
+        "name": "Лорелейн, Тёмная Луна",
+    },
+
+    {
+        "id": "lazarus",
+        "name": "Лазариус",
+    },
+    {
+        "id": "lucy",
+        "name": "Люси",
+    },
+    {
+        "id": "obliterator",
+        "name": "Облитератор",
+    },
+    {
+        "id": "defiler",
+        "name": "Осквернитель",
+    },
+    {
+        "id": "plague_queen_ame",
+        "name": "Королева Эпидемий, Амэ",
+    },
+
+
+    {
+        "id": "shadow_dragon_queen_whisper_of_death",
+        "name": "Королева Теневых Драконов, Шёпот Смерти",
+        "group": "Высшие Лорды Бездны",
+        "titles": [],
+        "domains": [],
+        "goals": [],
+        "alignment": [],
+        "blessings": [],
+        "description": ""
+    },
+    {
+        "id": "abyss_keeper_olivia",
+        "name": "Хранитель Бездны, Оливия",
+        "group": "Высшие Лорды Бездны",
+        "titles": [],
+        "domains": [],
+        "goals": [],
+        "alignment": [],
+        "blessings": [],
+        "description": ""
+    }
+];
+
 gameData.storiesOfTheEnd.pantheons = [
     {
-        "id": "leonard",
+        "id": "architectOfLight",
         "name": "Леонард",
         "group": "Пантеон Солнца",
         "titles": [
@@ -63,7 +202,7 @@ gameData.storiesOfTheEnd.pantheons = [
         "description": "Некогда жертва безумного демонолога, прошла через боль и страдания, очистив себя от скверны и став символом для всех, кто проходит через тяготы жизни, оберегая добрых и праведных. Крайне воинственна, в прошлом была основным полевым генералом и защитником Леонарда. Высокомерна, но любит простые вещи и часто вмешивается в дела смертных ради их блага."
     },
     {
-        "id": "ivy",
+        "id": "natureOfLight",
         "name": "Айви",
         "group": "Пантеон Солнца",
         "titles": [
@@ -92,7 +231,7 @@ gameData.storiesOfTheEnd.pantheons = [
         "description": "Получив в детстве половину сущности лесной нимфы, знает, что человек может и должен жить в гармонии с природой. Для этого, однако, нужен точный расчёт. Личный секретарь Леонарда и всего Пантеона Солнца. Фактически руководит Святым Престолом."
     },
     {
-        "id": "ariman_til",
+        "id": "hammerOfLight",
         "name": "Ариман (Тиль)",
         "group": "Пантеон Солнца",
         "titles": [
@@ -153,7 +292,7 @@ gameData.storiesOfTheEnd.pantheons = [
     },
 
     {
-        "id": "lliira",
+        "id": "moonGoddess",
         "name": "Ллиира",
         "group": "Пантеон Луны",
         "titles": [],
@@ -164,7 +303,7 @@ gameData.storiesOfTheEnd.pantheons = [
         "description": ""
     },
     {
-        "id": "tiberius",
+        "id": "moonKnight",
         "name": "Тибериус",
         "group": "Пантеон Луны",
         "titles": [],
@@ -175,7 +314,8 @@ gameData.storiesOfTheEnd.pantheons = [
         "description": ""
     },
     {
-        "id": "mireska", "name": "Миреска",
+        "id": "queenOfDarkestSpring",
+        "name": "Миреска",
         "group": "Пантеон Луны",
         "titles": [],
         "domains": [],
@@ -208,7 +348,7 @@ gameData.storiesOfTheEnd.pantheons = [
     },
 
     {
-        "id": "mountain_king",
+        "id": "mountainKing",
         "name": "Царь Горы",
         "group": "Пантеон Горы",
         "titles": [],
@@ -219,7 +359,7 @@ gameData.storiesOfTheEnd.pantheons = [
         "description": ""
     },
     {
-        "id": "tibbdlorf",
+        "id": "mountainBerserker",
         "name": "Тибблдорф",
         "group": "Пантеон Горы",
         "titles": [],
@@ -230,7 +370,7 @@ gameData.storiesOfTheEnd.pantheons = [
         "description": ""
     },
     {
-        "id": "berta",
+        "id": "mountainLady",
         "name": "Берта",
         "group": "Пантеон Горы",
         "titles": [],
@@ -355,7 +495,7 @@ gameData.storiesOfTheEnd.pantheons = [
     },
 
     {
-        "id": "lazarius",
+        "id": "lazarus",
         "name": "Лазариус",
         "group": "Высшие Чернокнижники",
         "titles": [],

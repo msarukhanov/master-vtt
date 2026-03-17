@@ -7875,6 +7875,7 @@ gameData.spaceDementia = {
             "philosophy": null
         },
         {
+            "id":"parturnaxDraconid",
             "group": "ДРАКОНИДЫ",
             "name": "Партурнакс",
             "fate": "Король Драконидов",
@@ -9243,6 +9244,7 @@ gameData.spaceDementia = {
             "philosophy": null,
         },
         {
+            "id": "samaraDraconid",
             "group": "ДРАКОНИДЫ",
             "name": "Белоснежка “Самара” Белая",
             "fate": null,
@@ -14878,6 +14880,7 @@ gameData.spaceDementia = {
             "rank": "epic"
         },
         {
+            "id": "samaraDraconid",
             "group": "ДРАКОНИДЫ",
             "name": "Белоснежка “Самара” Белая",
             "fate": null,
@@ -15644,6 +15647,7 @@ gameData.spaceDementia = {
             "rank": "legendary"
         },
         {
+            "id":"parturnaxDraconid",
             "group": "ДРАКОНИДЫ",
             "name": "Партурнакс",
             "fate": "Король Драконидов",
